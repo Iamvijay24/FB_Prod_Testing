@@ -1,5 +1,5 @@
 import { Button, Col, Form, message, Row, Typography, Upload } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GrLinkNext } from "react-icons/gr";
 import { makeApiRequest } from '../../../shared/api';
 import { v4 as uuidv4 } from "uuid";
@@ -11,6 +11,10 @@ const { Title, Text } = Typography;
 const StartHere = ({setCurrent}) => {
   const [fileList, setFileList] = useState([]); // Initialize as an array
   const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    setCookie('fb_partner_id', "c5c05e02d6");
+  }, []);
 
   // Function to get the upload URL and fields from backend
   const getUploadUrl = async() => {
