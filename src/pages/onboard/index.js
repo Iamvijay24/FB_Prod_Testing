@@ -28,7 +28,7 @@ const Onboard = () => {
     },
   ];
 
-  const [current, setCurrent] = useState(6);
+  const [current, setCurrent] = useState(0);
  
   const onChange = (value) => {
     // Prevent moving forward

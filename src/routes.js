@@ -15,12 +15,12 @@ function RootRouter() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <>
-        <Route index path="/login" element={<LoginPage />} />
-        <Route index path="/register" element={<RegisterPage />} />
-        <Route index path="/onboard" element={<Onboard />} />
+        <Route index path="/login789707" element={<LoginPage />} />
+        <Route index path="/register70887087" element={<RegisterPage />} />
+        <Route index path="/" element={<Onboard />} />
 
         {/* Dashboard */}
-        <Route path="/" element={<MainLayout />} >
+        <Route path="/test" element={<MainLayout />} >
           <Route index element={<Dashboard />} />
           <Route path="/content-kb" element={<ContentKB />} />
         </Route>
