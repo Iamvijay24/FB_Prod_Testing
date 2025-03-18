@@ -1,0 +1,73 @@
+.hoverFooterWrapper {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 3rem;
+    width: 95%;
+    height: 5rem;
+    background-color: #f0f1f4;
+    border-radius: 10px;
+    box-shadow: -4px 0px 8px rgba(0, 0, 0, 0.2);
+    /* Left side shadow */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Evenly distribute items */
+    padding: 0 20px;
+    gap: 3rem;
+}
+
+/* Add vertical divider between sections */
+.section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0 20px;
+    position: relative;
+}
+
+/* Add a border-left as a vertical divider for all sections except the first */
+.section:not(:first-child)::before {
+    content: "";
+    position: absolute;
+    left: -10px;
+    /* Position divider */
+    top: 50%;
+    transform: translateY(-50%);
+    height: 100%;
+    width: 2px;
+    background-color: rgba(0, 0, 0, 0.1);
+    /* Light gray vertical divider */
+}
+
+/* Adjustments for small screens */
+@media (max-width: 768px) {
+    .hoverFooterWrapper {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 10px;
+        gap: 1rem;
+    }
+
+    .section {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 10px;
+    }
+
+    .section:not(:first-child)::before {
+        left: 50%;
+        top: 0;
+        transform: translateX(-50%);
+        width: 70%;
+        height: 2px;
+        /* Horizontal divider for mobile */
+    }
+}
+
+/* Section Shadow Styling */
+.sectionShadow {
+    box-shadow: -4px 0px 6px rgba(0, 0, 0, 0.15);
+}

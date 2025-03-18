@@ -1,0 +1,40 @@
+.ant-carousel .slick-prev {
+  color: gray !important;
+}
+.ant-carousel .slick-next {
+  color: gray !important;
+}
+
+.ant-upload-wrapper:focus-within .ant-upload-drag {
+  /* Focus on the whole wrapper, more reliable than .ant-upload-drag:focus */
+  border: 2px dashed #1890ff; /* Or your theme's primary color */
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2); /* Optional: subtle glow */
+}
+
+.ant-upload-drag.ant-upload-drag-hover {
+  border: 2px solid #1890ff; /* Change the border when dragging over */
+  background-color: #e6f7ff; /* Subtle background highlight */
+}
+
+.ant-upload-drag {
+  background-color: #fafafa;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  text-align: center;
+  padding: 20px;
+  margin-bottom: 16px; /* Add some margin below the dragger */
+}
+
+.ant-upload-drag-icon {
+  margin-bottom: 10px; /* More spacing between icon and text */
+}
+
+.ant-upload-text {
+  color: rgba(0, 0, 0, 0.85);
+  margin-bottom: 5px;
+}
+
+.ant-upload-hint {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+}

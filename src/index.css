@@ -1,0 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+@import 'react-loading-skeleton/dist/skeleton.css';
+
+body {
+  font-family: "Inter", sans-serif;
+}
+
+/* Apply Inter font to all Ant Design typography elements */
+.ant-typography {
+  font-family: "Inter", sans-serif;
+}
+
+/* Optional: Apply Inter font to all elements (use with caution) */
+* {
+  font-family: "Inter", sans-serif;
+  padding: unset;
+  margin: unset;
+}
+
