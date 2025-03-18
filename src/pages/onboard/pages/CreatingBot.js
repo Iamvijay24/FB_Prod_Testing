@@ -16,10 +16,11 @@ import Skeleton from "react-loading-skeleton";
 const { Title, Text } = Typography;
 
 const CreatingBot = ({ setCurrent }) => {
-  const [avatars, setAvatars] = useState([]); // Array of avatars fetched from the API
-  const [selectedAvatar, setSelectedAvatar] = useState(null); // Initially no avatar is selected
-  const [isLoading, setLoading] = useState(true); // Initially loading is true
-  const [currentSlide, setCurrentSlide] = useState(0); // Track current carousel slide
+  const [avatars, setAvatars] = useState([]);
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
+  const [isLoading, setLoading] = useState(true);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [, setSelectedKnowledgeLibrary] = useState(null);
 
   useEffect(() => {
     getAllAvatars();
@@ -27,19 +28,19 @@ const CreatingBot = ({ setCurrent }) => {
 
   const getAllAvatars = async() => {
     try {
-      setLoading(true); // Set loading to true at the start of the request
+      setLoading(true);
       const response = await makeApiRequest("get_avatars", {
         partner_id: "c5c05e02d6",
       });
       console.log("Avatars fetched successfully:", response);
       setAvatars(response.data);
-      setSelectedAvatar(response.data[0] || null); //select the first avatar after fetching.
+      setSelectedAvatar(response.data[0] || null);
     } catch (error) {
       console.error("Error fetching avatars:", error);
       setAvatars([]);
       setSelectedAvatar(null);
     } finally {
-      setLoading(false); // Set loading to false regardless of success or failure
+      setLoading(false);
     }
   };
 
@@ -52,10 +53,15 @@ const CreatingBot = ({ setCurrent }) => {
 
   const chunkedAvatars = chunkArray(avatars, 5);
 
-  const options = [{ label: "Business & Company Overview", value: "business" }];
+  // Use avatar names as Knowledge Library options
+  const knowledgeLibraryOptions = avatars.map((avatar) => ({
+    label: avatar.avatar_name,
+    value: avatar.avatar_name, // Or avatar.avatar_id if that's more appropriate
+  }));
 
-  const onChange = (value) => {
-    console.log(value);
+  const handleKnowledgeLibraryChange = (value) => {
+    setSelectedKnowledgeLibrary(value);
+    console.log("Selected Knowledge Library:", value);
   };
 
   const handleAvatarSelect = (avatar) => {
@@ -67,17 +73,14 @@ const CreatingBot = ({ setCurrent }) => {
   };
 
   useEffect(() => {
-    // Ensure selected avatar stays within the current carousel slide
     if (selectedAvatar && chunkedAvatars.length > 0) {
       let found = false;
       chunkedAvatars[currentSlide].forEach((avatar) => {
         if (avatar.avatar_image === selectedAvatar.avatar_image) {
-          //corrected here
           found = true;
         }
       });
 
-      // If selected avatar is not in the current slide, reset selectedAvatar to the first avatar in the current slide
       if (!found) {
         setSelectedAvatar(chunkedAvatars[currentSlide][0] || null);
       }
@@ -119,19 +122,22 @@ const CreatingBot = ({ setCurrent }) => {
         <Row gutter={16} align="middle">
           <Col span={12}>
             {isLoading ? (
-              <Skeleton height={350} width={350}  borderRadius="4px"/>
+              <Skeleton height={350} width={350} borderRadius="4px" />
             ) : (
-              <Avatar size={350} src={selectedAvatar?.avatar_image} shape="square" />
+              <Avatar
+                size={350}
+                src={selectedAvatar?.avatar_image}
+                shape="square"
+              />
             )}
           </Col>
           <Col span={10}>
             {isLoading ? (
               <>
-                <Skeleton height={24} width={150}  />
+                <Skeleton height={24} width={150} />
                 <br />
                 <Skeleton height={24} width={200} />
                 <br />
-               
               </>
             ) : (
               <>
@@ -147,6 +153,7 @@ const CreatingBot = ({ setCurrent }) => {
           </Col>
         </Row>
       </div>
+
       <div style={{ maxWidth: 900, margin: "auto", padding: 20 }}>
         <Carousel
           dots={false}
@@ -171,7 +178,7 @@ const CreatingBot = ({ setCurrent }) => {
                         style={{
                           cursor: "pointer",
                           border:
-                            selectedAvatar?.avatar_image === avatar.avatar_image //corrected here
+                            selectedAvatar?.avatar_image === avatar.avatar_image
                               ? "2px solid #2fcc71"
                               : "none",
                         }}
@@ -186,22 +193,32 @@ const CreatingBot = ({ setCurrent }) => {
       </div>
 
       <div style={{ maxWidth: 850, margin: "auto", padding: 20 }}>
+        <Title level={5} style={{ fontWeight: "normal" }}>
+          Selected Knowledge Library
+        </Title>
         {isLoading ? (
           <>
             <Skeleton height={40} width={320} />
             <br />
-            <Skeleton height={40} width={160} count={2} inline={true} style={{ marginRight: 10 }} />
+            <Skeleton
+              height={40}
+              width={160}
+              count={2}
+              inline={true}
+              style={{ marginRight: 10 }}
+            />
           </>
         ) : (
           <>
             <Select
               showSearch
-              placeholder="Select a category"
+              placeholder="Select a Knowledge Library"
               optionFilterProp="label"
-              onChange={onChange}
-              options={options}
+              onChange={handleKnowledgeLibraryChange}
+              options={knowledgeLibraryOptions}
               size="large"
               style={{ width: "20rem", marginBottom: 25 }}
+              loading={isLoading} // Consider a separate loading state
             />
             <br />
             <Space>
@@ -213,7 +230,11 @@ const CreatingBot = ({ setCurrent }) => {
               >
                 Finish Setup
               </Button>
-              <Button size="large" style={{ width: "10rem" }} htmlType="submit">
+              <Button
+                size="large"
+                style={{ width: "10rem" }}
+                htmlType="submit"
+              >
                 Show Preview
               </Button>
             </Space>
