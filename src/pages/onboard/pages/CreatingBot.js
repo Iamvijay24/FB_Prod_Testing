@@ -15,7 +15,7 @@ import Skeleton from "react-loading-skeleton";
 
 const { Title, Text } = Typography;
 
-const CreatingBot = ({ setCurrent }) => {
+const CreatingBot = ({ setCurrent, setAvatarId }) => {
   const [avatars, setAvatars] = useState([]);
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [isLoading, setLoading] = useState(true);
@@ -66,6 +66,21 @@ const CreatingBot = ({ setCurrent }) => {
 
   const handleAvatarSelect = (avatar) => {
     setSelectedAvatar(avatar);
+    setAvatarId(avatar.avatar_id);
+    getAvatarById(avatar.avatar_id);
+  };
+
+  const getAvatarById = async(avatarId) => {
+    try {
+      setLoading(true);
+      await makeApiRequest("get_avatars", {
+        partner_id: "c5c05e02d6",
+        avatar_id: avatarId,
+      });
+    } catch (error) {
+      console.error("Error fetching avatars:", error);
+      setSelectedAvatar(null);
+    }
   };
 
   const handleCarouselChange = (current) => {

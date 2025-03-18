@@ -6,7 +6,7 @@ import { makeApiRequest } from "../../../shared/api";
 
 const { Title, Text } = Typography;
 
-const Complete = () => {
+const Complete = ({IsAvatarId}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const preRef = useRef(null);
   const [code, setCode] = useState("");
@@ -134,7 +134,7 @@ const Complete = () => {
           >
             Publish and Get Code
           </Button>
-          <Button size="large" style={{ width: "10rem" }} htmlType="submit">
+          <Button size="large" disabled style={{ width: "10rem" }} htmlType="submit">
             Login
           </Button>
         </Space>

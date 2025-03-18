@@ -9,6 +9,8 @@ import Complete from './pages/Complete';
 
 const Onboard = () => {
 
+  const [IsAvatarId, setAvatarId] = useState('');
+
 
   const StepItems = [
     {
@@ -28,7 +30,7 @@ const Onboard = () => {
     },
   ];
 
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(4);
  
   const onChange = (value) => {
     // Prevent moving forward
@@ -48,9 +50,9 @@ const Onboard = () => {
     case 2:
       return <KnowledgeVerification setCurrent={setCurrent}/>;
     case 3:
-      return <CreatingBot setCurrent={setCurrent}/>;
+      return <CreatingBot setCurrent={setCurrent} setAvatarId={setAvatarId}/>;
     case 4:
-      return <Complete />;
+      return <Complete IsAvatarId={IsAvatarId}/>;
     default:
       return <div>Unknown step</div>;
     }
