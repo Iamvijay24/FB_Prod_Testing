@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Typography, Alert, Card, Spin, message } from 'antd';
 import { CheckCircleOutlined, ExclamationCircleOutlined, SyncOutlined } from '@ant-design/icons';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CognitoUser } from 'amazon-cognito-identity-js';
 import AWSCognitoUserPool from '../../../shared/api/AWSCognitoUserPool';
 
 const { Title, Text } = Typography;
 
-const OTPVerificationPage = ({ navigate }) => {
+const OTPVerificationPage = () => {
   const [otpVerified, setOtpVerified] = useState(false);
   const [error, setError] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  const [resendLoading, setResendLoading] = useState(false);  // Loading state for resend button
-  const [resendDisabled, setResendDisabled] = useState(true); // Disable resend button initially
-  const [resendTime, setResendTime] = useState(60); // Countdown timer
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendDisabled, setResendDisabled] = useState(true);
+  const [resendTime, setResendTime] = useState(60);
   const [otpSentTime, setOtpSentTime] = useState(null);
-  const [isLoading, setLoading] = useState();
+  const [isLoading, setLoading] = useState(false); // Initialize isLoading to false
 
   useEffect(() => {
     if (location.state && location.state.email) {
@@ -37,68 +38,89 @@ const OTPVerificationPage = ({ navigate }) => {
     if (otpSentTime) {
       intervalId = setInterval(() => {
         const elapsedTime = Math.floor((Date.now() - otpSentTime) / 1000);
-        const remainingTime = Math.max(0, 60 - elapsedTime); // 60 seconds countdown
+        const remainingTime = Math.max(0, 60 - elapsedTime);
         setResendTime(remainingTime);
-        setResendDisabled(remainingTime > 0); // Disable if timer > 0
+        setResendDisabled(remainingTime > 0);
 
         if (remainingTime === 0) {
-          clearInterval(intervalId); // Clear the interval
+          clearInterval(intervalId);
         }
       }, 1000);
     }
 
-    return () => clearInterval(intervalId); // Cleanup on unmount
+    return () => clearInterval(intervalId);
   }, [otpSentTime]);
+
+  useEffect(() => {
+    if (otpVerified) {
+      const timer = setTimeout(() => {
+        navigate('/dashboard');
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [otpVerified, navigate]);
 
   const onVerifyOTP = async(values) => {
     console.log('Verifying OTP:', values.otp, 'for email:', email);
-    const userPool = AWSCognitoUserPool; //new CognitoUser(UserPool);
-
     setLoading(true);
-    let userData = {
-      Username: email,
-      Pool: userPool
-    };
-    const cognitoUser = new CognitoUser(userData);
+    setError('');
 
-    cognitoUser.confirmRegistration(values, true, (err, result) => {
+    try {
+      const userPool = AWSCognitoUserPool;
+
+      const userData = {
+        Username: email,
+        Pool: userPool
+      };
+      const cognitoUser = new CognitoUser(userData);
+
+      cognitoUser.confirmRegistration(values.otp, true, (err, result) => {
+        setLoading(false);
+
+        if (err) {
+          console.error("OTP Verification Error:", err);
+          setError(err.message || "Failed to verify OTP. Please try again.");
+          return;
+        }
+
+        console.log("OTP Verification Result:", result);
+        setOtpVerified(true);
+      });
+    } catch (err) {
+      console.error("Error during OTP verification:", err);
+      setError(err.message || "An unexpected error occurred. Please try again.");
       setLoading(false);
-      if (err) {
-        return;
-      }
-      setOtpVerified(true);
-      navigate('/dashboard');
-    });
-
-
+    }
   };
 
   const handleResendOTP = async() => {
     setResendLoading(true);
     setError('');
 
-    // Simulate resending OTP via API
     console.log('Resending OTP to:', email);
-    
-    var userData = {
-      Username: email,
-      Pool: AWSCognitoUserPool
-    };
-    const cognitoUser = new CognitoUser(userData);
 
+    try {
+      var userData = {
+        Username: email,
+        Pool: AWSCognitoUserPool
+      };
+      const cognitoUser = new CognitoUser(userData);
 
-    cognitoUser.resendConfirmationCode((err, result) => {
-      if (err) {
-        message.error(err.message);
-        return;
-      }
-      message.success('OTP resent successfully!');
-    });
-
-    setTimeout(() => {
+      cognitoUser.resendConfirmationCode((err, result) => {
+        setResendLoading(false);
+        if (err) {
+          message.error(err.message);
+          return;
+        }
+        message.success('OTP resent successfully!');
+        setOtpSentTime(Date.now());
+      });
+    } catch (error) {
+      console.error('Error resending OTP:', error);
+      setError('Failed to resend OTP.');
       setResendLoading(false);
-      setOtpSentTime(Date.now()); // Reset the timer
-    }, 1500);
+    }
   };
 
   if (!email) {
@@ -123,7 +145,7 @@ const OTPVerificationPage = ({ navigate }) => {
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <Title level={3} style={{ color: 'rgba(0, 0, 0, 0.85)' }}>OTP Verification</Title>
           <Text type="secondary">
-                        Enter the OTP sent to <Text strong>{email}</Text> to verify your account.
+            Enter the OTP sent to <Text strong>{email}</Text> to verify your account.
           </Text>
         </div>
 
@@ -153,8 +175,8 @@ const OTPVerificationPage = ({ navigate }) => {
               <Input.OTP size="large" style={{ width: '100%' }} placeholder="OTP Code" />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit" block size="large">
-                                Verify OTP
+              <Button type="primary" htmlType="submit" block size="large" loading={isLoading}>
+                Verify OTP
               </Button>
             </Form.Item>
           </Form>
@@ -164,7 +186,7 @@ const OTPVerificationPage = ({ navigate }) => {
           <div style={{ textAlign: 'center' }}>
             <Alert
               message="Success"
-              description="Your OTP has been verified successfully!"
+              description="Your OTP has been verified successfully! Redirecting to dashboard..."
               type="success"
               showIcon
               icon={<CheckCircleOutlined />}
@@ -177,7 +199,7 @@ const OTPVerificationPage = ({ navigate }) => {
             type="link"
             onClick={handleResendOTP}
             disabled={resendDisabled || resendLoading}
-            loading={isLoading}
+            loading={resendLoading}
           >
             {resendLoading ? (
               <Spin indicator={<SyncOutlined spin />} />

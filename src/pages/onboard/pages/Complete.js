@@ -1,8 +1,9 @@
 import { Button, Col, Modal, Row, Space, Typography, message } from "antd";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import styles from "./style.module.scss";
 import CheckMark from "../../../assets/check.svg";
 import { makeApiRequest } from "../../../shared/api";
+import { FbContext } from "../../../shared/rbac/context";
 
 const { Title, Text } = Typography;
 
@@ -11,6 +12,8 @@ const Complete = ({IsAvatarId}) => {
   const preRef = useRef(null);
   const [code, setCode] = useState("");
   const [, setLoading] = useState(false);
+
+  const authCxt = useContext(FbContext);
 
   useEffect(() => {
     getCode();
@@ -25,6 +28,7 @@ const Complete = ({IsAvatarId}) => {
           message.success("Code copied to clipboard!");
           setTimeout(() => {
             setIsModalOpen(false);
+            authCxt.setOnboarded(true);
           }, 1000);
         })
         .catch((err) => {

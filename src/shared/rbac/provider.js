@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { FbProvider } from './context';
-import {  getCookie, deleteCookie, setCookie } from 'cookies-next';
+import { getCookie, deleteCookie, setCookie } from 'cookies-next';
 
 const Auth = ({ children }) => {
   const initialToken = getCookie('accessToken');
   const storeId = getCookie('storeId');
+  const onboardedCookie = getCookie('onboarded');
 
   const initialState = {
-    authenticated: !!initialToken, //token && token !== 'undefined' ? true : false, //&& (userId && userId !== "undefined")
+    authenticated: !!initialToken,
     accessToken: initialToken || '',
-    storeId: storeId
+    storeId: storeId,
+    onboarded: onboardedCookie === 'true', // Initialize from cookie
   };
 
   const [state, setState] = useState(initialState);
@@ -17,26 +19,27 @@ const Auth = ({ children }) => {
   useEffect(() => {
     // Update state based on cookies when the component mounts
     const token = getCookie('accessToken');
-    // Update the document title using the browser API
+    const onboarded = getCookie('onboarded') === 'true'; // Read from cookie
     setState((prevState) => ({
       ...prevState,
       authenticated: !!token,
-      accessToken: token || ''
-      // storeId: storeId || ''
+      accessToken: token || '',
+      onboarded: onboarded,
     }));
   }, []);
 
   const initiateLogin = () => {};
 
   const logout = () => {
-    deleteCookie('accessToken', '', 0);
-    deleteCookie('refreshToken', '', 0);
-    deleteCookie('authenticated', false, 0);
-    deleteCookie('userId', '', 0);
-    deleteCookie('storeId', '', 0);
-    deleteCookie('accountId', '', 0);
-    deleteCookie('name', '', 0);
-    setState({ authenticated: false, accessToken: '', storeId: '' });
+    deleteCookie('accessToken');
+    deleteCookie('refreshToken');
+    deleteCookie('authenticated');
+    deleteCookie('userId');
+    deleteCookie('storeId');
+    deleteCookie('accountId');
+    deleteCookie('name');
+    deleteCookie('onboarded'); // Delete onboarded cookie
+    setState({ authenticated: false, accessToken: '', storeId: '', onboarded: false });
   };
 
   const handleAuthentication = (data) => {
@@ -44,8 +47,8 @@ const Auth = ({ children }) => {
   };
 
   const setSession = (data) => {
-    setState((state) => ({
-      ...state,
+    setState((prevState) => ({
+      ...prevState,
       authenticated: true,
       accessToken: data.getIdToken().getJwtToken()
     }));
@@ -67,34 +70,63 @@ const Auth = ({ children }) => {
       sameSite: 'Strict'
     });
 
-    setCookie('authenticated', true, 1);
+    setCookie('authenticated', true, {
+      maxAge: 1,
+      path: '/',
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: 'Strict'
+    });
   };
 
   const setUserRoles = (data) => {
     const user = {
       ...data
     };
-    setState((state) => ({
-      ...state,
+    setState((prevState) => ({
+      ...prevState,
       user
     }));
-    user && user?.name && setCookie('name', user.name, 1);
+    user && user?.name && setCookie('name', user.name, {
+      maxAge: 1,
+      path: '/',
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: 'Strict'
+    });
   };
 
   const setApplication = (id) => {
-    setState((state) => ({
-      ...state,
+    setState((prevState) => ({
+      ...prevState,
       application: id
     }));
   };
 
   const setStoreId = (id) => {
-    setState((state) => ({
-      ...state,
+    setState((prevState) => ({
+      ...prevState,
       storeId: id
     }));
-    setCookie('storeId', id, 1);
+    setCookie('storeId', id, {
+      maxAge: 1,
+      path: '/',
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: 'Strict'
+    });
   };
+
+  const setOnboarded = (value) => {
+    setState((prevState) => ({
+      ...prevState,
+      onboarded: value
+    }));
+    setCookie('onboarded', value, {  // Store onboarded state in a cookie
+      maxAge: 30*24*60*60,
+      path: '/',
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: 'Strict'
+    });
+  };
+
 
   const authProviderValue = {
     ...state,
@@ -103,8 +135,10 @@ const Auth = ({ children }) => {
     setUserRoles: setUserRoles,
     setApplication: setApplication,
     setStoreId: setStoreId,
-    logout: logout
+    logout: logout,
+    setOnboarded: setOnboarded, // Add setOnboarded function to the context value
   };
+
   return <FbProvider value={authProviderValue}>{children}</FbProvider>;
 };
 

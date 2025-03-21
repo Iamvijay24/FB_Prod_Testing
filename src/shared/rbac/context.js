@@ -1,4 +1,5 @@
 import { createContext } from "react";
+
 const authContext = createContext({
   authenticated: false, // to check if authenticated or not
   userId: "", // Business user id
@@ -12,7 +13,9 @@ const authContext = createContext({
   setApplication: () => {}, // Set application id such as (cxc, sxc, bxc, etc)
   setStoreId: () => {}, // Set store ids for the user
   storeId: "",
-  application: ""
+  application: "",
+  onboarded: false, // to check if user is onboarded or not
+  setOnboarded: (value) => {}, // Function to set the onboarded state
 });
 
 export const FbProvider = authContext.Provider;
