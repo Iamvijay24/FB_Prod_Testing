@@ -8,7 +8,8 @@ import CreatingBot from './pages/CreatingBot';
 import Complete from './pages/Complete';
 
 const Onboard = () => {
-
+  
+  const [current, setCurrent] = useState(0);
   const [IsAvatarId, setAvatarId] = useState('');
 
 
@@ -30,7 +31,6 @@ const Onboard = () => {
     },
   ];
 
-  const [current, setCurrent] = useState(4);
  
   const onChange = (value) => {
     // Prevent moving forward

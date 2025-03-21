@@ -7,6 +7,13 @@ import styles from './layout.module.scss';
 
 import { FaRegQuestionCircle } from "react-icons/fa";
 
+// icon
+import dashboardIcon from '../assets/guage.svg';
+import contentIcon from '../assets/library.svg';
+import manageIcon from '../assets/users.svg';
+import billingIcon from '../assets/receipt.svg';
+import supportIcon from '../assets/guage.svg';
+
 const { Title, Text } = Typography;
 
 const { Header, Content, Sider } = Layout;
@@ -16,16 +23,16 @@ function getItem(label, key, icon, path, children) {
 }
 
 const menuItems = [
-  getItem("Dashboard", "dashboard", null, "/"),
+  getItem("Dashboard", "dashboard", <img src={dashboardIcon} alt="dashboard" />, "/"),
   { type: "divider" },
-  getItem("Content KB", "content-kb", null, "/content-kb"),
-  getItem("Content FaceBot", "content-facebot", null, "/content-facebot"),
+  getItem("Content KB", "content-kb", <img src={contentIcon} alt="content" />, "/content-kb"),
+  getItem("Content FaceBot", "content-facebot", <img src={manageIcon} alt="content" />, "/content-facebot"),
   { type: "divider" },
   // getItem("Travel", "travel", null, "/admin/travel/dashboard", [
   //   getItem("Packages", "travel-packages", null, "/admin/travel/packages")
   // ]),
-  getItem("Billing", "billing", null, "/billing"),
-  getItem("Support", "support", null, "/support"),
+  getItem("Billing", "billing", <img src={billingIcon} alt="billing" />, "/billing"),
+  getItem("Support", "support", <img src={supportIcon} alt="support" />, "/support"),
 ];
 
 const MainLayout = () => {

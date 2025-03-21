@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Form, Grid, Input, theme, Typography } from "antd";
 import { LockOutlined, MailOutlined, PhoneOutlined } from "@ant-design/icons";
 import logo from "../../../Logo.svg";
+
+import AWSCognitoUserPool from "../../../shared/api/AWSCognitoUserPool";
+import { CognitoUserAttribute } from "amazon-cognito-identity-js";
+import { useNavigate } from "react-router-dom";
 
 
 const { useToken } = theme;
@@ -11,9 +15,48 @@ const { Text, Title, Link } = Typography;
 export default function RegisterPage() {
   const { token } = useToken();
   const screens = useBreakpoint();
+  const [form] = Form.useForm();
 
-  const onFinish = (values) => {
+  let navigate = useNavigate();
+
+  const [isLoading, setLoading] = useState(false);
+
+
+  const handleFinish = (values) => {
     console.log("Received values of form: ", values);
+
+    const attributeList = [
+      new CognitoUserAttribute({
+        Name: 'email',
+        Value: values.email
+      })
+    ];
+
+    AWSCognitoUserPool.signUp(
+      values.email,
+      values.password,
+      attributeList,
+      null,
+      (err, result) => {
+
+        if (err) {
+          setLoading(false);
+          return;
+        }
+
+       
+        navigate('/verify', {
+          state: { email: values.email }
+        });
+      }
+    );
+
+  };
+
+  const handleEnterKey = (event) => {
+    if (event.keyCode === 13) {
+      form.submit();
+    }
   };
 
   const styles = {
@@ -71,9 +114,11 @@ export default function RegisterPage() {
           initialValues={{
             remember: true,
           }}
-          onFinish={onFinish}
+          onFinish={handleFinish}
+          onKeyUp={handleEnterKey}
           layout="vertical"
           requiredMark="optional"
+          form={form}
         >
           <Form.Item
             name="email"
@@ -96,16 +141,23 @@ export default function RegisterPage() {
             name="phone"
             rules={[
               {
-                type: "number",
                 required: true,
-                message: "Please input your Phone!",
+                message: "Please input your phone number!",
+              },
+              {
+                pattern: /^[0-9]+$/,  // Allows only digits
+                message: "Please enter a valid phone number (numbers only)",
+              },
+              {
+                min: 10, // Or a more appropriate minimum length
+                message: "Phone number must be at least 10 digits",
               },
             ]}
           >
             <Input
               prefix={<PhoneOutlined />}
               placeholder="Phone"
-              type="phone"
+              type="text"
               size="large"
             />
           </Form.Item>
@@ -163,7 +215,7 @@ export default function RegisterPage() {
           </Form.Item>
           
           <Form.Item style={{ marginBottom: "0px" }}>
-            <Button block="true" size="large" type="primary" htmlType="submit">
+            <Button block="true" size="large" loading={isLoading} type="primary" htmlType="submit">
               Sign up
             </Button>
             <div style={styles.footer}>

@@ -1,6 +1,5 @@
-import { CognitoUser } from 'amazon-cognito-identity-js';
 import { getCookie, setCookie } from 'cookies-next';
-import userPool from '../../AWSCognitoUserPool';
+import userPool from "./AWSCognitoUserPool";
 
 export default function RefreshToken() {
   const refreshToken = getCookie('refreshToken');

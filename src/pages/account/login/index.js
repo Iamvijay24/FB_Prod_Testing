@@ -1,18 +1,75 @@
-import React from "react";
-import { Button, Checkbox, Form, Grid, Input, theme, Typography } from "antd";
+import React, { useContext, useEffect, useState } from "react";
+import { Button, Checkbox, Form, Grid, Input, message, theme, Typography } from "antd";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import logo from "../../../Logo.svg";
+import { useNavigate } from "react-router-dom";
+import { AuthenticationDetails, CognitoUser } from "amazon-cognito-identity-js";
+import AWSCognitoUserPool from "../../../shared/api/AWSCognitoUserPool";
+import { FbContext } from "../../../shared/rbac/context";
 
 const { useToken } = theme;
 const { useBreakpoint } = Grid;
 const { Text, Title, Link } = Typography;
 
 export default function LoginPage() {
+  const [form] = Form.useForm();
   const { token } = useToken();
   const screens = useBreakpoint();
+  let navigate = useNavigate();
+  const [isLoading, setLoading] = useState(false);
 
-  const onFinish = (values) => {
-    console.log("Received values of form: ", values);
+  const authCxt = useContext(FbContext);
+
+  useEffect(() => {
+    console.log("authCxt.authenticated", authCxt.authenticated);
+    // Use authCxt.authenticated directly in the condition
+    if (authCxt.authenticated) {
+      navigate('/dashboard');
+    }
+  }, [authCxt.authenticated, navigate]); // Add authCxt.authenticated to dependency array
+
+  const handleFinish = async(values) => {
+    setLoading(true);
+    const userData = {
+      Username: values.email,
+      Pool: AWSCognitoUserPool
+    };
+
+    const cognitoUser = new CognitoUser(userData);
+
+    const authenticationDetails = new AuthenticationDetails({
+      Username: values.email,
+      Password: values.password
+    });
+
+    cognitoUser.authenticateUser(authenticationDetails, {
+      onSuccess: (result) => {
+        console.log("Authentication successful:", result);
+        setLoading(false);
+        authCxt.handleAuthentication(result);
+        navigate('/dashboard');
+        message.success('Login successful!');
+      },
+      onFailure: (err) => {
+        console.error('Authentication failed:', err);
+        setLoading(false);
+        // Handle specific error messages
+        if (err.code === 'UserNotFoundException') {
+          message.error('User not found. Please check your email.');
+        } else if (err.code === 'NotAuthorizedException') {
+          message.error('Incorrect password. Please try again.');
+        } else if (err.code === 'UserNotConfirmedException') {
+          message.error('User not confirmed. Please check your email for confirmation.');
+        }
+      }
+    });
+  };
+
+
+  const handleEnterKey = (event) => {
+    if (event.keyCode === 13) {
+      form.submit();
+    }
   };
 
   const styles = {
@@ -56,7 +113,7 @@ export default function LoginPage() {
     <section style={styles.section}>
       <div style={styles.container}>
         <div style={styles.header}>
-          <img src={logo} alt="logo"/>
+          <img src={logo} alt="logo" />
 
           <Title style={styles.title}>Sign in</Title>
           <Text style={styles.text}>
@@ -69,7 +126,9 @@ export default function LoginPage() {
           initialValues={{
             remember: true,
           }}
-          onFinish={onFinish}
+          onFinish={handleFinish}
+          onKeyUp={handleEnterKey}
+          form={form}
           layout="vertical"
           requiredMark="optional"
         >
@@ -115,7 +174,7 @@ export default function LoginPage() {
             </a>
           </Form.Item>
           <Form.Item style={{ marginBottom: "0px" }}>
-            <Button block="true" size="large" type="primary" htmlType="submit">
+            <Button block="true" loading={isLoading} size="large" type="primary" htmlType="submit">
               Log in
             </Button>
             <div style={styles.footer}>

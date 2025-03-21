@@ -7,11 +7,13 @@ import {
   Select,
   Space,
   Button,
+  Modal,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styles from "./style.module.scss";
 import { makeApiRequest } from "../../../shared/api";
 import Skeleton from "react-loading-skeleton";
+import Hls from 'hls.js';
 
 const { Title, Text } = Typography;
 
@@ -21,6 +23,10 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
   const [isLoading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [, setSelectedKnowledgeLibrary] = useState(null);
+
+  const [isPreviewModalVisible, setIsPreviewModalVisible] = useState(false);
+  const videoRef = useRef(null); // Add a ref for the video player
+
 
   useEffect(() => {
     getAllAvatars();
@@ -67,12 +73,11 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
   const handleAvatarSelect = (avatar) => {
     setSelectedAvatar(avatar);
     setAvatarId(avatar.avatar_id);
-    getAvatarById(avatar.avatar_id);
+    getAvatarById();
   };
 
   const getAvatarById = async(avatarId) => {
     try {
-      setLoading(true);
       await makeApiRequest("get_avatars", {
         partner_id: "c5c05e02d6",
         avatar_id: avatarId,
@@ -80,6 +85,8 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
     } catch (error) {
       console.error("Error fetching avatars:", error);
       setSelectedAvatar(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,6 +112,86 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
   const handleFinishSetup = () => {
     setCurrent(4);
   };
+
+
+  const renderPreview = () => {
+    if (!selectedAvatar) {
+      return <Text>No avatar selected.</Text>;
+    }
+
+    const videoUrl = selectedAvatar.sample_video;
+
+    if (!videoUrl) {
+      return <Text>No video available for this avatar.</Text>;
+    }
+
+    const videoType = videoUrl.endsWith('.m3u8') ? 'application/vnd.apple.mpegurl' : 'video/mp4';
+
+    return (
+      <video
+        ref={videoRef}
+        controls
+        width="100%"
+        height="auto"
+        style={{ backgroundColor: 'black' }} // Optional: Set a background color
+      >
+        <source src={videoUrl} type={videoType} />
+            Your browser does not support the video tag.
+      </video>
+    );
+  };
+
+
+
+  useEffect(() => {
+    let hls = null; // Declare hls outside the if block
+    if (isPreviewModalVisible && videoRef.current && selectedAvatar?.sample_video?.endsWith('.m3u8')) {
+      const video = videoRef.current;
+      if (Hls.isSupported()) {
+        hls = new Hls(); // Initialize hls here
+        hls.loadSource(selectedAvatar.sample_video);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play();
+        });
+        hls.on(Hls.Events.ERROR, function(event, data) {
+          if (data.fatal) {
+            switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              console.log("fatal network error encountered, try to recover");
+              hls.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.error("fatal media error encountered, trying to recover");
+              hls.recoverMediaError();
+              break;
+            default:
+              hls.destroy();
+              console.error("Fatal error encountered, cannot recover.");
+              break;
+            }
+          }
+        });
+
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // Native HLS support (e.g., Safari on iOS)
+        video.src = selectedAvatar.sample_video;
+        video.addEventListener('loadedmetadata', () => {
+          video.play();
+        });
+      } else {
+        console.error('HLS is not supported in this browser.');
+      }
+    }
+
+    return () => {
+      if (hls) {
+        hls.destroy(); // Clean up when the component unmounts
+      }
+    };
+
+  }, [isPreviewModalVisible, selectedAvatar]);
+
 
   return (
     <div className={styles.container}>
@@ -248,7 +335,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
               <Button
                 size="large"
                 style={{ width: "10rem" }}
-                htmlType="submit"
+                onClick={() => setIsPreviewModalVisible(true)}
               >
                 Show Preview
               </Button>
@@ -256,6 +343,61 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
           </>
         )}
       </div>
+
+
+      <Modal
+        title="Preview"
+        open={isPreviewModalVisible}
+        onCancel={() => setIsPreviewModalVisible(false)}
+        width={800}  // Adjust width as needed
+        afterOpen={()=>{
+          if (videoRef.current) {
+            if (selectedAvatar?.sample_video?.endsWith('.m3u8')) {
+              if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(selectedAvatar.sample_video);
+                hls.attachMedia(videoRef.current);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                  videoRef.current.play();
+                });
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                  if (data.fatal) {
+                    switch (data.type) {
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+                      console.log("fatal network error encountered, try to recover");
+                      hls.startLoad();
+                      break;
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+                      console.error("fatal media error encountered, trying to recover");
+                      hls.recoverMediaError();
+                      break;
+                    default:
+                      hls.destroy();
+                      console.error("Fatal error encountered, cannot recover.");
+                      break;
+                    }
+                  }
+                });
+
+              } else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
+                videoRef.current.src = selectedAvatar.sample_video;
+                videoRef.current.addEventListener('loadedmetadata', () => {
+                  videoRef.current.play();
+                });
+              } else {
+                console.error('HLS is not supported in this browser.');
+              }
+            } else {
+              videoRef.current.play();
+            }
+          }
+        }}
+      >
+        <div style={{ maxWidth: 850, margin: "auto", padding: 20 }}>
+          {renderPreview()}
+        </div>
+      </Modal>
+
     </div>
   );
 };
