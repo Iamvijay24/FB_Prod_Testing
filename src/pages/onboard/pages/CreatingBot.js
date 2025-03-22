@@ -13,7 +13,7 @@ import React, { useEffect, useState, useRef } from "react";
 import styles from "./style.module.scss";
 import { makeApiRequest } from "../../../shared/api";
 import Skeleton from "react-loading-skeleton";
-import Hls from 'hls.js';
+import Hls from "hls.js";
 
 const { Title, Text } = Typography;
 
@@ -27,12 +27,11 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
   const [isPreviewModalVisible, setIsPreviewModalVisible] = useState(false);
   const videoRef = useRef(null); // Add a ref for the video player
 
-
   useEffect(() => {
     getAllAvatars();
   }, []);
 
-  const getAllAvatars = async() => {
+  const getAllAvatars = async () => {
     try {
       setLoading(true);
       const response = await makeApiRequest("get_avatars", {
@@ -76,7 +75,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
     getAvatarById();
   };
 
-  const getAvatarById = async(avatarId) => {
+  const getAvatarById = async (avatarId) => {
     try {
       await makeApiRequest("get_avatars", {
         partner_id: "c5c05e02d6",
@@ -113,7 +112,6 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
     setCurrent(4);
   };
 
-
   const renderPreview = () => {
     if (!selectedAvatar) {
       return <Text>No avatar selected.</Text>;
@@ -125,7 +123,9 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
       return <Text>No video available for this avatar.</Text>;
     }
 
-    const videoType = videoUrl.endsWith('.m3u8') ? 'application/vnd.apple.mpegurl' : 'video/mp4';
+    const videoType = videoUrl.endsWith(".m3u8")
+      ? "application/vnd.apple.mpegurl"
+      : "video/mp4";
 
     return (
       <video
@@ -133,19 +133,21 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
         controls
         width="100%"
         height="auto"
-        style={{ backgroundColor: 'black' }} // Optional: Set a background color
+        style={{ backgroundColor: "black" }} // Optional: Set a background color
       >
         <source src={videoUrl} type={videoType} />
-            Your browser does not support the video tag.
+        Your browser does not support the video tag.
       </video>
     );
   };
 
-
-
   useEffect(() => {
     let hls = null; // Declare hls outside the if block
-    if (isPreviewModalVisible && videoRef.current && selectedAvatar?.sample_video?.endsWith('.m3u8')) {
+    if (
+      isPreviewModalVisible &&
+      videoRef.current &&
+      selectedAvatar?.sample_video?.endsWith(".m3u8")
+    ) {
       const video = videoRef.current;
       if (Hls.isSupported()) {
         hls = new Hls(); // Initialize hls here
@@ -154,33 +156,34 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           video.play();
         });
-        hls.on(Hls.Events.ERROR, function(event, data) {
+        hls.on(Hls.Events.ERROR, function (event, data) {
           if (data.fatal) {
             switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              console.log("fatal network error encountered, try to recover");
-              hls.startLoad();
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              console.error("fatal media error encountered, trying to recover");
-              hls.recoverMediaError();
-              break;
-            default:
-              hls.destroy();
-              console.error("Fatal error encountered, cannot recover.");
-              break;
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                console.log("fatal network error encountered, try to recover");
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.error(
+                  "fatal media error encountered, trying to recover"
+                );
+                hls.recoverMediaError();
+                break;
+              default:
+                hls.destroy();
+                console.error("Fatal error encountered, cannot recover.");
+                break;
             }
           }
         });
-
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
         // Native HLS support (e.g., Safari on iOS)
         video.src = selectedAvatar.sample_video;
-        video.addEventListener('loadedmetadata', () => {
+        video.addEventListener("loadedmetadata", () => {
           video.play();
         });
       } else {
-        console.error('HLS is not supported in this browser.');
+        console.error("HLS is not supported in this browser.");
       }
     }
 
@@ -189,9 +192,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
         hls.destroy(); // Clean up when the component unmounts
       }
     };
-
   }, [isPreviewModalVisible, selectedAvatar]);
-
 
   return (
     <div className={styles.container}>
@@ -201,7 +202,11 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
             Yaa! almost there! - Create FaceAvatar
           </Title>
           <Text className={styles.description}>
-            Setting up your FaceAvatar allows you to create a personalised digital representation of your product or service within virtual environments. Customising your FaceAvatar gives you the opportunity to showcase your unique style and identity. Choose from a variety of features to make your FaceAvatar truly stand out.
+            Setting up your FaceAvatar allows you to create a personalised
+            digital representation of your product or service within virtual
+            environments. Customising your FaceAvatar gives you the opportunity
+            to showcase your unique style and identity. Choose from a variety of
+            features to make your FaceAvatar truly stand out.
           </Text>
         </Col>
       </Row>
@@ -212,7 +217,11 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
             Select FaceAvatar
           </Title>
           <Text className={styles.description}>
-            Setting up your FaceAvatar allows you to create a personalised digital representation of your product or service within virtual environments. Customising your FaceAvatar gives you the opportunity to showcase your unique style and identity. Choose from a variety of features to make your FaceAvatar truly stand out.
+            Setting up your FaceAvatar allows you to create a personalised
+            digital representation of your product or service within virtual
+            environments. Customising your FaceAvatar gives you the opportunity
+            to showcase your unique style and identity. Choose from a variety of
+            features to make your FaceAvatar truly stand out.
           </Text>
         </Col>
       </Row>
@@ -221,8 +230,8 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
         <Title level={4} style={{ fontWeight: "normal", marginTop: 50 }}>
           Selected FaceAvatar
         </Title>
-        <Row gutter={16} align="middle">
-          <Col span={12}>
+        <Row gutter={16} align="middle" style={{ marginBottom: 24 }}>
+          <Col xs={24} sm={12} md={12} lg={12} xl={12}>
             {isLoading ? (
               <Skeleton height={350} width={350} borderRadius="4px" />
             ) : (
@@ -230,10 +239,11 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
                 size={350}
                 src={selectedAvatar?.avatar_image}
                 shape="square"
+                style={{ maxWidth: "100%", height: "auto" }} // Ensure the image is responsive
               />
             )}
           </Col>
-          <Col span={10}>
+          <Col xs={24} sm={12} md={12} lg={12} xl={12}>
             {isLoading ? (
               <>
                 <Skeleton height={24} width={150} />
@@ -242,15 +252,13 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
                 <br />
               </>
             ) : (
-              <>
-                <Text strong style={{ marginBottom: 10 }}>
-                  Name:
-                </Text>
-                {selectedAvatar?.avatar_name}
+              <div style={{ padding: "0 8px", marginTop: "10px" }}>
+                {" "}
+                <Text strong style={{ marginBottom: 10 }}>Name:</Text> {selectedAvatar?.avatar_name}
                 <br />
                 <Text strong>Gender:</Text> {selectedAvatar?.gender}
                 <br />
-              </>
+              </div>
             )}
           </Col>
         </Row>
@@ -344,15 +352,14 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
         )}
       </div>
 
-
       <Modal
         title="Preview"
         open={isPreviewModalVisible}
         onCancel={() => setIsPreviewModalVisible(false)}
-        width={800}  // Adjust width as needed
-        afterOpen={()=>{
+        width={800} // Adjust width as needed
+        afterOpen={() => {
           if (videoRef.current) {
-            if (selectedAvatar?.sample_video?.endsWith('.m3u8')) {
+            if (selectedAvatar?.sample_video?.endsWith(".m3u8")) {
               if (Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(selectedAvatar.sample_video);
@@ -360,32 +367,39 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
                   videoRef.current.play();
                 });
-                hls.on(Hls.Events.ERROR, function(event, data) {
+                hls.on(Hls.Events.ERROR, function (event, data) {
                   if (data.fatal) {
                     switch (data.type) {
-                    case Hls.ErrorTypes.NETWORK_ERROR:
-                      console.log("fatal network error encountered, try to recover");
-                      hls.startLoad();
-                      break;
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                      console.error("fatal media error encountered, trying to recover");
-                      hls.recoverMediaError();
-                      break;
-                    default:
-                      hls.destroy();
-                      console.error("Fatal error encountered, cannot recover.");
-                      break;
+                      case Hls.ErrorTypes.NETWORK_ERROR:
+                        console.log(
+                          "fatal network error encountered, try to recover"
+                        );
+                        hls.startLoad();
+                        break;
+                      case Hls.ErrorTypes.MEDIA_ERROR:
+                        console.error(
+                          "fatal media error encountered, trying to recover"
+                        );
+                        hls.recoverMediaError();
+                        break;
+                      default:
+                        hls.destroy();
+                        console.error(
+                          "Fatal error encountered, cannot recover."
+                        );
+                        break;
                     }
                   }
                 });
-
-              } else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
+              } else if (
+                videoRef.current.canPlayType("application/vnd.apple.mpegurl")
+              ) {
                 videoRef.current.src = selectedAvatar.sample_video;
-                videoRef.current.addEventListener('loadedmetadata', () => {
+                videoRef.current.addEventListener("loadedmetadata", () => {
                   videoRef.current.play();
                 });
               } else {
-                console.error('HLS is not supported in this browser.');
+                console.error("HLS is not supported in this browser.");
               }
             } else {
               videoRef.current.play();
@@ -397,7 +411,6 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
           {renderPreview()}
         </div>
       </Modal>
-
     </div>
   );
 };

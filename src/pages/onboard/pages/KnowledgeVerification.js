@@ -18,6 +18,7 @@ const KnowledgeVerification = ({ setCurrent }) => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [approvedItems, setApprovedItems] = useState({}); // Track approved items
+  const [activeKeys, setActiveKeys] = useState([]);
 
   const KB_ID = getCookie('fb_kb_id');
   const PARTNER_ID = getCookie('fb_partner_id');
@@ -33,6 +34,10 @@ const KnowledgeVerification = ({ setCurrent }) => {
 
   const onSearch = (value) => {
     console.log(value);
+  };
+
+  const handleCollapseChange = (keys) => {
+    setActiveKeys(keys); // Update activeKeys state
   };
 
   const handleApproveAll = async() => {
@@ -196,8 +201,15 @@ const KnowledgeVerification = ({ setCurrent }) => {
     ),
   }));
 
+  const filteredKbAnswers = selectedCategory
+    ? kbData?.kb_answers?.filter(
+        (item) =>
+          item.category.toLowerCase().replace(/ /g, "_") === selectedCategory
+      )
+    : kbData?.kb_answers;
+
   const items =
-    kbData?.kb_answers?.map((item) => ({
+    filteredKbAnswers?.map((item) => ({
       key: item.question_index,
       label: <Text className="collapse-header">{item.question}</Text>,
       children: (
@@ -209,7 +221,7 @@ const KnowledgeVerification = ({ setCurrent }) => {
               onPressEnter: () => setIsEditing((prev) => ({ ...prev, [item.question_index]: false })),
               triggerType: "text"
             }}
-            style={{ display: "block", marginBottom: "10px", }}
+            style={{ display: "block", marginBottom: "10px" }}
             disabled={!isEditing[item.question_index]}
             // This is a hack, but you can style the color of antd's text component while not editing it to look normal.
             className={!isEditing[item.question_index] ? styles.viewModeText : ""}
@@ -239,7 +251,11 @@ const KnowledgeVerification = ({ setCurrent }) => {
       <Row justify="center">
         <Col xs={24} sm={20} md={16} lg={12} xl={14}>
           <Title level={3} style={{ fontWeight: "normal" }}>
-            {isLoading ? <Skeleton width={200} /> : "Knowledge Verification & Editing"}
+            {isLoading ? (
+              <Skeleton width={200} />
+            ) : (
+              "Knowledge Verification & Editing"
+            )}
           </Title>
           {isLoading ? (
             <Skeleton count={2} />
@@ -250,32 +266,44 @@ const KnowledgeVerification = ({ setCurrent }) => {
           )}
 
 
-          <Title level={4} style={{ fontWeight: "normal", marginTop: "4rem", }}>
-            {isLoading ? <Skeleton width={250} /> : "Key Findings on Product / Service Performance"}
+          <Title level={4} style={{ fontWeight: "normal", marginTop: "4rem" }}>
+            {isLoading ? (
+              <Skeleton width={250} />
+            ) : (
+              "Key Findings on Product / Service Performance"
+            )}
           </Title>
 
           <Flex wrap className={styles.cardContainer}>
             {isLoading
               ? Array.from({ length: 2 }).map((_, index) => (
-                <div className={styles.card} key={index}>
-                  <Skeleton inline/>
-                </div>
-              ))
+                  <div className={styles.card} key={index}>
+                    <Skeleton inline/>
+                  </div>
+                ))
               : cardItems.map((item, index) => (
-                <div className={styles.card} key={index}>
-                  <Space>
-                    {item.icon}
-                    <Text className={styles.cardTitle}>{item.title}</Text>
-                  </Space>
-                  <Title level={2} className={styles.cardValue}>
-                    {item.value}
-                  </Title>
-                </div>
-              ))}
+                  <div className={styles.card} key={index}>
+                    <Space>
+                      {item.icon}
+                      <Text className={styles.cardTitle}>{item.title}</Text>
+                    </Space>
+                    <Title level={2} className={styles.cardValue}>
+                      {item.value}
+                    </Title>
+                  </div>
+                ))}
           </Flex>
 
           <Title level={4} style={{ fontWeight: "normal", marginTop: "4rem", marginBottom: "1rem" }}>
-            {isLoading ? <Skeleton width={400} /> : "Please verify the contents to ensure accuracy & completeness <br /> before proceeding with approval by categories."}
+            {isLoading ? (
+              <Skeleton width={400} />
+            ) : (
+              <span>
+                Please verify the contents to ensure accuracy & completeness.{" "}
+                <br />
+                Before proceeding with approval by categories.
+              </span>
+            )}
           </Title>
 
           <Space>
@@ -306,9 +334,9 @@ const KnowledgeVerification = ({ setCurrent }) => {
           </Space>
 
           <div className={styles.approveCard}>
-            <Collapse
-              defaultActiveKey={isLoading ? [] : kbData?.kb_answers?.map((item) => item.question_index)} //open all collapse
-              onChange={onChange}
+          <Collapse
+              activeKey={activeKeys} 
+              onChange={handleCollapseChange}
               expandIconPosition="end"
               size="large"
               items={isLoading ? skeletonItems : items}
@@ -317,44 +345,38 @@ const KnowledgeVerification = ({ setCurrent }) => {
         </Col>
       </Row>
 
+      {!isLoading && (
+        <div className={styles.hoverFooterWrapper}>
+          <div>
+            <Title level={4} style={{ margin: 0, fontWeight: 'normal', color: 'gray' }}>
+              Findings Verified
+            </Title>
+          </div>
 
+          <span className={styles.sectionShadow} />
 
-      {!isLoading &&
-      <div className={styles.hoverFooterWrapper}>
-        <div>
-          <Title level={4} style={{ margin: 0, fontWeight: 'normal', color: 'gray' }}>
-         Findings Verified
-          </Title>
+          <div className={styles.section}>
+            <Title level={3} style={{ margin: 0, fontWeight: 'normal', }}>
+              {categories.length ?? 0}
+            </Title>
+            <FaRegQuestionCircle size={22} color='gray'/>
+            <Text style={{color: 'gray' }}>Categories</Text>
+          </div>
+
+          <div className={styles.section}>
+            <Title level={3} style={{ margin: 0, fontWeight: 'normal', }}>
+              {kbData?.kb_answers?.length ?? 0}
+            </Title>
+            <FaRegQuestionCircle size={22} color='gray'/>
+            <Text style={{color: 'gray' }}>Questions</Text>
+          </div>
+
+          <div>
+            <Button type="primary" disabled={isLoading} onClick={()=>{setCurrent(3);}} size="large" style={{ width: '100%' }} >Save & Continue</Button>
+          </div>
+
         </div>
-
-        <span className={styles.sectionShadow} />
-
-        <div className={styles.section}>
-          <Title level={3} style={{ margin: 0, fontWeight: 'normal', }}>
-            {categories.length ?? 0}
-          </Title>
-          <FaRegQuestionCircle size={22} color='gray'/>
-          <Text style={{color: 'gray' }}>Categories</Text>
-        </div>
-
-        
-
-        <div className={styles.section}>
-          <Title level={3} style={{ margin: 0, fontWeight: 'normal', }}>
-            {kbData?.kb_answers?.length ?? 0}
-          </Title>
-          <FaRegQuestionCircle size={22} color='gray'/>
-          <Text style={{color: 'gray' }}>Questions</Text>
-        </div>
-
-        <div>
-          <Button type="primary" disabled={isLoading} onClick={()=>{setCurrent(3);}} size="large" style={{ width: '100%' }} >Save & Continue</Button>
-        </div>
-
-       
-      </div>}
-
-
+      )}
     </div>
   );
 };
