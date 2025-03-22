@@ -15,6 +15,7 @@ import ForgotPasswordPage from "./pages/account/forgot-password";
 import ContentKB from "./pages/contentKB";
 import { useContext } from "react";
 import { FbContext } from "./shared/rbac/context";
+import Test from "./pages/dashboard/test";
 
 function RootRouter() {
 
@@ -32,6 +33,7 @@ function RootRouter() {
           element={isAuthenticated ? (isOnboarded ? <Navigate to="/dashboard" replace /> : <Navigate to="/onboard" replace />) : <LoginPage />}
         />
         <Route index path="/register" element={<RegisterPage />} />
+        <Route index path="/test" element={<Test />} />
         <Route path="/verify" element={<OTPValidationPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
