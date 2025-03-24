@@ -1,68 +1,94 @@
-import React, { useEffect, useState } from "react";
-import { Select, Flex, Typography, Space } from "antd";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import styles from "./dashboard.module.scss";
-import { LuLayoutDashboard, LuUsers } from "react-icons/lu";
-import { AiOutlineRise } from "react-icons/ai";
-import { FaRegQuestionCircle } from "react-icons/fa";
-
-const { Text, Title } = Typography;
+import React, { useEffect, useRef, useState } from 'react';
+import ChartsEmbedSDK from '@mongodb-js/charts-embed-dom';
 
 const Dashboard = () => {
-  const [isLoading, setLoading] = useState(true);
+  const dashboardRef = useRef(null); // Renamed chartRef to dashboardRef
+  const sdkRef = useRef(null);
+  const dashboardInstance = useRef(null); // Renamed chartInstance to dashboardInstance
+  const [initializationError, setInitializationError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    if (!sdkRef.current) {
+      try {
+        sdkRef.current = new ChartsEmbedSDK({
+          baseUrl: 'https://charts.mongodb.com/charts-project-0-ufymlzu',
+        });
+      } catch (error) {
+        console.error('Failed to initialize ChartsEmbedSDK:', error);
+        setInitializationError('Failed to initialize ChartsEmbedSDK.');
+        setLoading(false);
+        return;
+      }
+    }
+
+    const sdk = sdkRef.current;
+
+    const initializeDashboard = async() => { // Renamed initializeCharts to initializeDashboard
+      try {
+        // embed a dashboard
+        const dashboard = sdk.createDashboard({ // Changed sdk.createChart to sdk.createDashboard
+          dashboardId: '6b9c8eb5-d173-4a6f-ac40-40f69190de3b', // Ensure this is your dashboard ID
+        });
+
+        dashboardInstance.current = dashboard; // Updated chartInstance to dashboardInstance
+
+        if (dashboardRef.current) { // Updated chartRef to dashboardRef
+          await dashboard.render(dashboardRef.current); // Updated chartRef to dashboardRef
+        } else {
+          console.error('Dashboard container not found');
+        }
+
+        // refresh the dashboard every 5 seconds (if dashboard supports refresh)
+        setTimeout(() => {
+          dashboardInstance.current?.refresh(); // Updated chartInstance to dashboardInstance
+        }, 5000);
+
+      } catch (error) {
+        console.error('Failed to initialize dashboard:', error); // More specific error message
+        let errorMessage = `Failed to initialize dashboard. Check your dashboard ID. `;
+
+        setInitializationError(errorMessage);
+      } finally {
+        setLoading(false); // Ensure loading is set to false regardless of success or failure
+      }
+    };
+
+    if (sdk) {
+      initializeDashboard(); // Updated initializeCharts to initializeDashboard
+    }
+
+    return () => {
+      if (dashboardInstance.current && typeof dashboardInstance.current.destroy === 'function') { // Updated chartInstance to dashboardInstance
+        dashboardInstance.current.destroy(); // Updated chartInstance to dashboardInstance
+      }
+    };
   }, []);
 
-  const menuItems = [
-    { value: "today", label: "Today" },
-    { value: "yesterday", label: "Yesterday" },
-  ];
-
-  const cardItems = [
-    { title: "Categories", value: "12", icon: <LuLayoutDashboard size={18} /> },
-    { title: "Questions", value: "178", icon: <FaRegQuestionCircle size={18} /> },
-    { title: "Views", value: "7234", icon: <AiOutlineRise size={18} /> },
-    { title: "Users", value: "3671", icon: <LuUsers size={18} /> },
-  ];
-
   return (
-    <div className={styles.wrapper}>
-      {/* Overview Header */}
-      <Flex justify="space-between" align="center" className={styles.header}>
-        <Text strong>Overview</Text>
-        <Select
-          options={menuItems}
-          defaultValue="today"
-          style={{ width: 120 }}
-          bordered={false}
-        />
-      </Flex>
+    <div>
+      {initializationError && (
+        <div style={{ color: 'red', marginBottom: '10px' }}>
+          Error: {initializationError}
+        </div>
+      )}
 
-      {/* Dashboard Cards */}
-      <Flex wrap justify="center" align="center" className={styles.container}>
-        {isLoading
-          ? Array.from({ length: 4 }).map((_, index) => (
-            <div className={styles.card} key={index}>
-              <Skeleton width={"15rem"} height={"7.3rem"} />
-            </div>
-          ))
-          : cardItems.map((item, index) => (
-            <div className={styles.card} key={index}>
-              <Space>
-                {item.icon}
-                <Text>{item.title}</Text>
-              </Space>
-              <Title level={4} style={{ margin: 0 }}>
-                {item.value}
-              </Title>
-            </div>
-          ))}
-      </Flex>
+      {loading && (
+        <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+          Loading...
+        </div>
+      )}
+
+      {/* Renamed chart to dashboard, and updated ref and styles */}
+      <div
+        id="dashboard"
+        ref={dashboardRef}
+        style={{
+          display: loading ? 'none' : 'block',
+          width: '', // Adjust as needed for a dashboard
+          height: '100vh', // Adjust as needed for a dashboard
+        }}
+      ></div>
     </div>
   );
 };

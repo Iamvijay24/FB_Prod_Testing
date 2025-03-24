@@ -1,9 +1,8 @@
 import { CognitoUserPool } from "amazon-cognito-identity-js";
 const awsconfig = {
-  //   Auth: {
   region: "us-east-1",
-  UserPoolId: "us-east-1_tE36FUCEy",
-  ClientId: "7g080on7ebd8lmiuu0u2nmigtv",
+  UserPoolId: "us-east-1_ewbCWJClc",
+  ClientId: "7q535i5hgdbrmfs08tmqkqah9d",
   cookieStorage: {
     domain: ".yourdomain.com",
     path: "/",
@@ -12,7 +11,7 @@ const awsconfig = {
     secure: true,
   },
   oauth: {
-    domain: "https://videoassistant.auth.us-east-1.amazoncognito.com",
+    domain: "https://us-east-1ewbcwjclc.auth.us-east-1.amazoncognito.com/",
     scope: ["email", "profile"],
     redirectSignIn: "http://localhost:3000/",
     redirectSignOut: "http://localhost:3000/",
@@ -21,3 +20,8 @@ const awsconfig = {
 };
 
 export default new CognitoUserPool(awsconfig);
+
+
+// UserPoolId: "us-east-1_ewbCWJClc",
+// ClientId: "7q535i5hgdbrmfs08tmqkqah9d", 
+// domain: "https://us-east-1ewbcwjclc.auth.us-east-1.amazoncognito.com",

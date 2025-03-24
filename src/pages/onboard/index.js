@@ -5,7 +5,7 @@ import StartHere from './pages/StartHere';
 import KnowledgeVerification from './pages/KnowledgeVerification';
 import KnowledgeAnalysis from './pages/KnowledgeAnalysis';
 import CreatingBot from './pages/CreatingBot';
-import Complete from './pages/Complete';
+import Complete from './pages/CompleteNew';
 
 const Onboard = () => {
   
@@ -34,9 +34,9 @@ const Onboard = () => {
  
   const onChange = (value) => {
     // Prevent moving forward
-    if (value > current) {
-      return;
-    }
+    // if (value > current) {
+    //   return;
+    // }
     setCurrent(value);
   };
 

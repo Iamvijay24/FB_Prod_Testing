@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { GrLinkNext } from 'react-icons/gr';
 import { makeApiRequest } from "../../../shared/api";
 import { getCookie, setCookie } from 'cookies-next';
-import Skeleton from 'react-loading-skeleton';
 
 const { Title, Text } = Typography;
 
@@ -90,7 +89,7 @@ const KnowledgeAnalysis = ({ setCurrent }) => {
           iconPosition="end"
           onClick={() => setCurrent(2)}
         >
-          {isLoading ? <Skeleton width={100} /> : "SAVE & CONTINUE"}
+          {isLoading ? "Please wait..." : "Save & Continue"}
         </Button>
       </div>
 

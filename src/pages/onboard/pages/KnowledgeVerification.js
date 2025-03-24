@@ -203,9 +203,9 @@ const KnowledgeVerification = ({ setCurrent }) => {
 
   const filteredKbAnswers = selectedCategory
     ? kbData?.kb_answers?.filter(
-        (item) =>
-          item.category.toLowerCase().replace(/ /g, "_") === selectedCategory
-      )
+      (item) =>
+        item.category.toLowerCase().replace(/ /g, "_") === selectedCategory
+    )
     : kbData?.kb_answers;
 
   const items =
@@ -277,21 +277,21 @@ const KnowledgeVerification = ({ setCurrent }) => {
           <Flex wrap className={styles.cardContainer}>
             {isLoading
               ? Array.from({ length: 2 }).map((_, index) => (
-                  <div className={styles.card} key={index}>
-                    <Skeleton inline/>
-                  </div>
-                ))
+                <div className={styles.card} key={index}>
+                  <Skeleton inline/>
+                </div>
+              ))
               : cardItems.map((item, index) => (
-                  <div className={styles.card} key={index}>
-                    <Space>
-                      {item.icon}
-                      <Text className={styles.cardTitle}>{item.title}</Text>
-                    </Space>
-                    <Title level={2} className={styles.cardValue}>
-                      {item.value}
-                    </Title>
-                  </div>
-                ))}
+                <div className={styles.card} key={index}>
+                  <Space>
+                    {item.icon}
+                    <Text className={styles.cardTitle}>{item.title}</Text>
+                  </Space>
+                  <Title level={2} className={styles.cardValue}>
+                    {item.value}
+                  </Title>
+                </div>
+              ))}
           </Flex>
 
           <Title level={4} style={{ fontWeight: "normal", marginTop: "4rem", marginBottom: "1rem" }}>
@@ -334,8 +334,8 @@ const KnowledgeVerification = ({ setCurrent }) => {
           </Space>
 
           <div className={styles.approveCard}>
-          <Collapse
-              activeKey={activeKeys} 
+            <Collapse
+              activeKey={activeKeys}
               onChange={handleCollapseChange}
               expandIconPosition="end"
               size="large"

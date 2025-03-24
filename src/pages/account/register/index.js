@@ -26,10 +26,14 @@ export default function RegisterPage() {
     console.log("Received values of form: ", values);
 
     const attributeList = [
-      new CognitoUserAttribute({
-        Name: 'email',
-        Value: values.email
-      })
+      new CognitoUserAttribute({ Name: 'email', Value: values.email }),
+      new CognitoUserAttribute({ Name: 'phone_number', Value: values.phone_number || '+1234567890' }),
+      new CognitoUserAttribute({ Name: 'given_name', Value: values.given_name || 'John' }),
+      new CognitoUserAttribute({ Name: 'family_name', Value: values.family_name || 'Doe' }),
+      new CognitoUserAttribute({ Name: 'gender', Value: values.gender || 'Male' }),
+      new CognitoUserAttribute({ Name: 'address', Value: values.address || '123 Street, City, Country' }),
+      new CognitoUserAttribute({ Name: 'website', Value: values.website || 'https://example.com' }),
+
     ];
 
     AWSCognitoUserPool.signUp(

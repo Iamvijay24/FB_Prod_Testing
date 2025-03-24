@@ -3,7 +3,7 @@ import {
   createRoutesFromElements,
   Route,
   RouterProvider,
-  Navigate, // Import Navigate
+  Navigate,
 } from "react-router-dom";
 import LoginPage from "./pages/account/login";
 import RegisterPage from "./pages/account/register";
@@ -15,13 +15,11 @@ import ForgotPasswordPage from "./pages/account/forgot-password";
 import ContentKB from "./pages/contentKB";
 import { useContext } from "react";
 import { FbContext } from "./shared/rbac/context";
-import Test from "./pages/dashboard/test";
 
 function RootRouter() {
 
   const authCxt = useContext(FbContext);
 
-  // Assuming authCxt has properties like 'authenticated' and 'onboarded'
   const { authenticated: isAuthenticated, onboarded: isOnboarded } = authCxt;
 
 
@@ -33,7 +31,6 @@ function RootRouter() {
           element={isAuthenticated ? (isOnboarded ? <Navigate to="/dashboard" replace /> : <Navigate to="/onboard" replace />) : <LoginPage />}
         />
         <Route index path="/register" element={<RegisterPage />} />
-        <Route index path="/test" element={<Test />} />
         <Route path="/verify" element={<OTPValidationPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
@@ -43,7 +40,7 @@ function RootRouter() {
             isAuthenticated && !isOnboarded ? (
               <Onboard />
             ) : (
-              <Navigate to="/" replace /> // Redirect to dashboard or login depending on auth status
+              <Navigate to="/" replace />
             )
           }
         />
@@ -55,7 +52,7 @@ function RootRouter() {
             isAuthenticated && isOnboarded ? (
               <MainLayout />
             ) : (
-              <Navigate to="/" replace /> // Redirect to login or onboard if not authenticated
+              <Navigate to="/" replace />
             )
           }
         >

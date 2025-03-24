@@ -31,7 +31,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
     getAllAvatars();
   }, []);
 
-  const getAllAvatars = async () => {
+  const getAllAvatars = async() => {
     try {
       setLoading(true);
       const response = await makeApiRequest("get_avatars", {
@@ -72,10 +72,11 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
   const handleAvatarSelect = (avatar) => {
     setSelectedAvatar(avatar);
     setAvatarId(avatar.avatar_id);
+    
     getAvatarById();
   };
 
-  const getAvatarById = async (avatarId) => {
+  const getAvatarById = async(avatarId) => {
     try {
       await makeApiRequest("get_avatars", {
         partner_id: "c5c05e02d6",
@@ -156,23 +157,23 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           video.play();
         });
-        hls.on(Hls.Events.ERROR, function (event, data) {
+        hls.on(Hls.Events.ERROR, function(event, data) {
           if (data.fatal) {
             switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                console.log("fatal network error encountered, try to recover");
-                hls.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                console.error(
-                  "fatal media error encountered, trying to recover"
-                );
-                hls.recoverMediaError();
-                break;
-              default:
-                hls.destroy();
-                console.error("Fatal error encountered, cannot recover.");
-                break;
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              console.log("fatal network error encountered, try to recover");
+              hls.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.error(
+                "fatal media error encountered, trying to recover"
+              );
+              hls.recoverMediaError();
+              break;
+            default:
+              hls.destroy();
+              console.error("Fatal error encountered, cannot recover.");
+              break;
             }
           }
         });
@@ -367,27 +368,27 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
                   videoRef.current.play();
                 });
-                hls.on(Hls.Events.ERROR, function (event, data) {
+                hls.on(Hls.Events.ERROR, function(event, data) {
                   if (data.fatal) {
                     switch (data.type) {
-                      case Hls.ErrorTypes.NETWORK_ERROR:
-                        console.log(
-                          "fatal network error encountered, try to recover"
-                        );
-                        hls.startLoad();
-                        break;
-                      case Hls.ErrorTypes.MEDIA_ERROR:
-                        console.error(
-                          "fatal media error encountered, trying to recover"
-                        );
-                        hls.recoverMediaError();
-                        break;
-                      default:
-                        hls.destroy();
-                        console.error(
-                          "Fatal error encountered, cannot recover."
-                        );
-                        break;
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+                      console.log(
+                        "fatal network error encountered, try to recover"
+                      );
+                      hls.startLoad();
+                      break;
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+                      console.error(
+                        "fatal media error encountered, trying to recover"
+                      );
+                      hls.recoverMediaError();
+                      break;
+                    default:
+                      hls.destroy();
+                      console.error(
+                        "Fatal error encountered, cannot recover."
+                      );
+                      break;
                     }
                   }
                 });
