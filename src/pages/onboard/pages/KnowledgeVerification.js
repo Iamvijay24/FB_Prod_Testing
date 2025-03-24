@@ -317,6 +317,7 @@ const KnowledgeVerification = ({ setCurrent }) => {
                 onChange={onChange}
                 onSearch={onSearch}
                 options={options}
+                allowClear
                 size="large"
                 style={{ width: "20rem" }}
               />

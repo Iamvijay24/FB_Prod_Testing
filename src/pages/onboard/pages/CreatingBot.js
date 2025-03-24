@@ -22,10 +22,11 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [isLoading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [, setSelectedKnowledgeLibrary] = useState(null);
+  const [selectedKnowledgeLibrary, setSelectedKnowledgeLibrary] = useState(null);
 
   const [isPreviewModalVisible, setIsPreviewModalVisible] = useState(false);
   const videoRef = useRef(null); // Add a ref for the video player
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     getAllAvatars();
@@ -40,6 +41,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
       console.log("Avatars fetched successfully:", response);
       setAvatars(response.data);
       setSelectedAvatar(response.data[0] || null);
+      setSelectedKnowledgeLibrary(response.data[0]?.avatar_id || null);
     } catch (error) {
       console.error("Error fetching avatars:", error);
       setAvatars([]);
@@ -56,23 +58,47 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
     }, []);
   };
 
-  const chunkedAvatars = chunkArray(avatars, 5);
+  const chunkSize = isMobile ? 3 : 5;
+  const chunkedAvatars = chunkArray(avatars, chunkSize);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Use avatar names as Knowledge Library options
   const knowledgeLibraryOptions = avatars.map((avatar) => ({
     label: avatar.avatar_name,
-    value: avatar.avatar_name, // Or avatar.avatar_id if that's more appropriate
+    value: avatar.avatar_id, // Or avatar.avatar_id if that's more appropriate
   }));
 
   const handleKnowledgeLibraryChange = (value) => {
+    // Find the selected avatar by avatar_id
+    const selected = avatars.find((avatar) => avatar.avatar_id === value);
+    if (selected) {
+      setSelectedAvatar(selected);
+      setAvatarId(selected.avatar_id);
+      const slideIndex = chunkedAvatars.findIndex((group) =>
+        group.some((avatar) => avatar.avatar_id === selected.avatar_id)
+      );
+  
+      if (slideIndex !== -1) {
+        setCurrentSlide(slideIndex); // Update the currentSlide state
+      }
+    }
     setSelectedKnowledgeLibrary(value);
-    console.log("Selected Knowledge Library:", value);
+    console.log("Selected Knowledge Library:", selected);
   };
 
   const handleAvatarSelect = (avatar) => {
     setSelectedAvatar(avatar);
     setAvatarId(avatar.avatar_id);
     getAvatarById();
+    setSelectedKnowledgeLibrary(avatar.avatar_id);
   };
 
   const getAvatarById = async (avatarId) => {
@@ -254,7 +280,10 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
             ) : (
               <div style={{ padding: "0 8px", marginTop: "10px" }}>
                 {" "}
-                <Text strong style={{ marginBottom: 10 }}>Name:</Text> {selectedAvatar?.avatar_name}
+                <Text strong style={{ marginBottom: 10 }}>
+                  Name:
+                </Text>{" "}
+                {selectedAvatar?.avatar_name}
                 <br />
                 <Text strong>Gender:</Text> {selectedAvatar?.gender}
                 <br />
@@ -269,12 +298,13 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
           dots={false}
           arrows
           draggable
-          style={{ marginTop: 20, width: "28rem" }}
+          style={{ marginTop: 20, width: "28rem", width: isMobile ? "18rem" : "28rem", marginLeft: isMobile ? 0 : "0", marginRight: isMobile ? 0 : "auto", }}
           afterChange={handleCarouselChange}
+          current={currentSlide}
         >
           {chunkedAvatars.map((group, index) => (
             <div key={index}>
-              <Row justify="center" gutter={16}>
+              <Row justify={isMobile ? "start" : "center"} gutter={16}>
                 {group.map((avatar, idx) => (
                   <Col key={idx}>
                     {isLoading ? (
@@ -329,6 +359,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
               size="large"
               style={{ width: "20rem", marginBottom: 25 }}
               loading={isLoading} // Consider a separate loading state
+              value={selectedKnowledgeLibrary}
             />
             <br />
             <Space>

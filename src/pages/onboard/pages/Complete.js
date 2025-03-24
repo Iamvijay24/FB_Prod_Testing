@@ -80,8 +80,8 @@ const Complete = ({IsAvatarId}) => {
             your style.
           </Text>
 
-          <Row gutter={16} align="middle" style={{ marginTop: 40 }}>
-            <Col span={10}>
+          <Row align="middle" style={{ marginTop: 40 }}>
+            <Col>
               {/* First Row */}
               <Row style={{ marginBottom: 16, alignItems: "center" }}>
                 <Col>
