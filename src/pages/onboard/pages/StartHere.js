@@ -8,7 +8,7 @@ import { setCookie } from 'cookies-next';
 
 const { Title, Text } = Typography;
 
-const StartHere = ({setCurrent}) => {
+const StartHere = ({ setCurrent }) => {
   const [fileList, setFileList] = useState([]); // Initialize as an array
   const [uploading, setUploading] = useState(false);
 
@@ -17,7 +17,7 @@ const StartHere = ({setCurrent}) => {
   }, []);
 
   // Function to get the upload URL and fields from backend
-  const getUploadUrl = async() => {
+  const getUploadUrl = async () => {
     try {
       const newUuid = uuidv4(); // Generate a new UUID
       let params = {
@@ -46,7 +46,7 @@ const StartHere = ({setCurrent}) => {
     }
   };
 
-  const handleUpload = async() => {
+  const handleUpload = async () => {
     if (!fileList || fileList.length === 0) { // Check fileList correctly
       message.error('Please upload a file.');
       return;
@@ -97,17 +97,26 @@ const StartHere = ({setCurrent}) => {
   };
 
   const props = {
-    multiple: false, // Restrict to single file
-    onRemove: (file) => {
-      setFileList([]); // Clear the file list
+    multiple: false,
+    maxCount: 1, 
+    accept: ".pdf, .html, .txt", 
+    onRemove: () => {
+      setFileList([]); 
     },
     beforeUpload: (file) => {
-      setFileList([file]); // Add the file to the list as an array
-      return false; // Prevent default upload
+      const maxSize = 1 * 1024 * 1024; 
+
+      if (file.size > maxSize) {
+        message.error("File size must be 1MB or less. Please try again!");
+        return false; 
+      }
+
+      setFileList([file]); 
+      return false; 
     },
     fileList,
-    maxCount: 1
   };
+
 
 
   return (
@@ -126,17 +135,21 @@ const StartHere = ({setCurrent}) => {
 
       <Row justify="center" style={{ marginTop: 20 }}>
         <Col xs={24} sm={20} md={16} lg={12} xl={10}>
-
+        <div style={{ 
+      maxHeight: '500px', 
+      overflowY: 'auto', 
+      padding: '20px' 
+    }}>
           <Upload.Dragger {...props}>
-            <div className="ant-upload-drag-icon" style={{ marginBottom: '10px' }}>
-            </div>
+            <div className="ant-upload-drag-icon" style={{ marginBottom: '10px' }}></div>
             <p className="ant-upload-text">
-                Drag & Drop files here or <span style={{ color: '#1890ff', cursor: 'pointer' }}>Click to Browse</span>
+              Drag & Drop files here or <span style={{ color: '#1890ff', cursor: 'pointer' }}>Click to Browse</span>
             </p>
             <p className="ant-upload-hint">
-                Allowed file types: PDF only. Max file size: 10MB.
+              Allowed file types: <strong>PDF, HTML and TXT</strong> only. Max file size: 1MB.
             </p>
           </Upload.Dragger>
+          </div>
           <Form.Item style={{ textAlign: 'center', marginTop: 20 }}>
             <Button
               type="primary"
@@ -148,10 +161,9 @@ const StartHere = ({setCurrent}) => {
               disabled={!fileList || fileList.length === 0 || uploading}
               loading={uploading}
             >
-                Continue
+              Continue
             </Button>
           </Form.Item>
-
         </Col>
       </Row>
     </div>
