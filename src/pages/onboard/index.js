@@ -34,9 +34,9 @@ const Onboard = () => {
  
   const onChange = (value) => {
     // Prevent moving forward
-    // if (value > current) {
-    //   return;
-    // }
+    if (value > current) {
+      return;
+    }
     setCurrent(value);
   };
 
