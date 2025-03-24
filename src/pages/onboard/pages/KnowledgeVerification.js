@@ -1,4 +1,4 @@
-import { Button, Col, Collapse, Flex, Row, Select, Space, Typography, message } from "antd";
+import { Button, Col, Collapse, Flex, Row, Select, Space, Tooltip, Typography, message } from "antd";
 import React, { useState, useEffect } from "react";
 import styles from "./style.module.scss";
 import { LuLayoutDashboard } from "react-icons/lu";
@@ -6,19 +6,20 @@ import { FaRegQuestionCircle } from "react-icons/fa";
 import { makeApiRequest } from "../../../shared/api";
 import { getCookie } from "cookies-next";
 import Skeleton from "react-loading-skeleton";
-import 'react-loading-skeleton/dist/skeleton.css';
+import CheckMark from "../../../assets/check.svg";
 
 const { Title, Text } = Typography;
 
 const KnowledgeVerification = ({ setCurrent }) => {
-  const [isLoading, setIsLoading] = useState(true); // Initially loading
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState({});
   const [kbData, setKbData] = useState(null);
-  const [content, setContent] = useState({}); // Initialize as empty object
+  const [content, setContent] = useState({});
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [approvedItems, setApprovedItems] = useState({}); // Track approved items
+  const [approvedItems, setApprovedItems] = useState({});
   const [activeKeys, setActiveKeys] = useState([]);
+  const [isApproving, setIsApproving] = useState({});
 
   const KB_ID = getCookie('fb_kb_id');
   const PARTNER_ID = getCookie('fb_partner_id');
@@ -58,11 +59,11 @@ const KnowledgeVerification = ({ setCurrent }) => {
         return;
       }
 
-      // Prepare category_update array
+      
       const category_update = kb_answers_to_approve.map((item) => ({
         question_index: item.question_index,
         question: item.question,
-        answer: item.answer, // Use the current (potentially edited) answer
+        answer: content[item.question_index],
       }));
 
       // Prepare payload
@@ -101,27 +102,23 @@ const KnowledgeVerification = ({ setCurrent }) => {
     value: category.toLowerCase().replace(/ /g, "_"), // create values from the category for select options
   }));
 
-  // Toggle edit mode for specific item
-  const toggleEdit = (question_index) => {
-    setIsEditing((prev) => ({
-      ...prev,
-      [question_index]: !prev[question_index],
-    }));
-  };
-
   // Update text dynamically
   const handleTextChange = (question_index, newText) => {
     setContent((prev) => ({
       ...prev,
       [question_index]: newText,
     }));
+    setApprovedItems((prev) => {
+      const { [question_index]: removed, ...rest } = prev;
+      return rest;
+    });
   };
 
   const handleApprove = async(item) => {
-    setIsLoading(true);
+    setIsApproving((prev) => ({ ...prev, [item.question_index]: true })); // Start loading
     try {
       // update the item.answer to the state content
-      item.answer = content[item.question_index]; // <--- This line is important
+      item.answer = content[item.question_index];
 
       const response = await makeApiRequest("update_kb_question", {
         action: "update_kb_question",
@@ -137,7 +134,6 @@ const KnowledgeVerification = ({ setCurrent }) => {
       if (response.data === "Successfully updated") {
         message.success("Successfully approved question");
         setApprovedItems((prev) => ({ ...prev, [item.question_index]: true })); // Update approved state
-        GetKb();
       } else {
         message.error("Failed to approve question");
       }
@@ -145,7 +141,7 @@ const KnowledgeVerification = ({ setCurrent }) => {
       console.error("Error approving question:", error);
       message.error("An error occurred while approving the question.");
     } finally {
-      setIsLoading(false);
+      setIsApproving((prev) => ({ ...prev, [item.question_index]: false })); // Stop loading
     }
   };
 
@@ -177,7 +173,7 @@ const KnowledgeVerification = ({ setCurrent }) => {
       } else {
         console.error("API response data is not an array:", response.data);
         message.error("Failed to load knowledge base data. Invalid data format.");
-        setKbData({ kb_answers: [] }); // Or some default value to prevent errors
+        setKbData({ kb_answers: [] });
       }
     } catch (error) {
       console.error("Error fetching avatars:", error);
@@ -211,40 +207,43 @@ const KnowledgeVerification = ({ setCurrent }) => {
   const items =
     filteredKbAnswers?.map((item) => ({
       key: item.question_index,
-      label: <Text className="collapse-header">{item.question}</Text>,
+      label: <Text>{item.question}</Text>,
       children: (
         <div>
-          <Text
-            editable={{
-              onChange: (value) => handleTextChange(item.question_index, value),
-              onBlur: () => setIsEditing((prev) => ({ ...prev, [item.question_index]: false })),
-              onPressEnter: () => setIsEditing((prev) => ({ ...prev, [item.question_index]: false })),
-              triggerType: "text"
-            }}
-            style={{ display: "block", marginBottom: "10px" }}
-            disabled={!isEditing[item.question_index]}
-            // This is a hack, but you can style the color of antd's text component while not editing it to look normal.
-            className={!isEditing[item.question_index] ? styles.viewModeText : ""}
-          >
-            {content[item.question_index] || "Loading..."}
-          </Text>
+          <Tooltip title={"Click to edit"}>
+            <Text
+              editable={{
+                onChange: (value) => handleTextChange(item.question_index, value),
+                onBlur: () => {
+                  setIsEditing((prev) => ({ ...prev, [item.question_index]: false }));
+                },
+                onPressEnter: () => setIsEditing((prev) => ({ ...prev, [item.question_index]: false })),
+                triggerType: "text",
+                autoFocus: isEditing[item.question_index],
+              }}
+              style={{ display: "block", marginBottom: "10px" }}
+
+            >
+              {content[item.question_index] || "Loading..."}
+            </Text>
+          </Tooltip>
           <Flex justify="flex-end" gap={16}>
-            <Button type="text" size="large" onClick={() => toggleEdit(item.question_index)}>
-              {isEditing[item.question_index] ? "Close" : "Edit"}
-            </Button>
+
             <Button
               type="primary"
               size="large"
-              style={{ backgroundColor: approvedItems[item.question_index] ? "green" : "#2fcc71" }}
+              style={{ backgroundColor: approvedItems[item.question_index] ? "gray" : "#2fcc71", color: "white" }}
               onClick={() => handleApprove(item)}
-              disabled={approvedItems[item.question_index]} // Disable after approval
+              disabled={approvedItems[item.question_index]}
+              loading={isApproving[item.question_index]}
             >
               {approvedItems[item.question_index] ? "Approved" : "Approve"}
             </Button>
           </Flex>
         </div>
       ),
-    })) || []; // Ensure items is an array
+      extra: approvedItems[item.question_index] ? <img src={CheckMark} alt="Approved" /> : null,
+    })) || [];
 
   return (
     <div className={styles.container}>
@@ -326,7 +325,6 @@ const KnowledgeVerification = ({ setCurrent }) => {
               type="primary"
               size="large"
               style={{ width: "10rem" }}
-              htmlType="button"
               onClick={handleApproveAll}
               disabled={isLoading}
             >
