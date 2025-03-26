@@ -14,6 +14,7 @@ import styles from "./style.module.scss";
 import { makeApiRequest } from "../../../shared/api";
 import Skeleton from "react-loading-skeleton";
 import Hls from "hls.js";
+import { getCookie, setCookie } from "cookies-next";
 
 const { Title, Text } = Typography;
 
@@ -27,6 +28,8 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
   const [isPreviewModalVisible, setIsPreviewModalVisible] = useState(false);
   const videoRef = useRef(null); // Add a ref for the video player
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  const KB_ID = getCookie('fb_kb_id');
 
   useEffect(() => {
     getAllAvatars();
@@ -137,6 +140,28 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
 
   const handleFinishSetup = () => {
     setCurrent(4);
+
+    CreateFaceBot();
+  };
+
+  const CreateFaceBot = async() => {
+    try {
+      setLoading(true);
+      const response = await makeApiRequest("create_facebot", {
+        partner_id: "c5c05e02d6",
+        kb_id: KB_ID,
+        avatar_id: selectedAvatar?.avatar_id,
+        facebot_name: selectedAvatar?.avatar_name,
+      });
+
+      setCookie('fb_id', response?.data?.fb_id);
+
+      console.log("FaceBot created successfully:", response);
+    } catch (error) {
+      console.error("Error fetching avatars:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderPreview = () => {
@@ -204,7 +229,6 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
           }
         });
       } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        // Native HLS support (e.g., Safari on iOS)
         video.src = selectedAvatar.sample_video;
         video.addEventListener("loadedmetadata", () => {
           video.play();
@@ -216,7 +240,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
 
     return () => {
       if (hls) {
-        hls.destroy(); // Clean up when the component unmounts
+        hls.destroy();
       }
     };
   }, [isPreviewModalVisible, selectedAvatar]);

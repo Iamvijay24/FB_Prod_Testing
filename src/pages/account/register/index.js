@@ -1,15 +1,30 @@
+/* eslint-disable no-useless-escape */
+import { LinkOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
+import { Button, Form, Grid, Input, message, Space, theme, Typography } from "antd";
 import React, { useState } from "react";
-import { Button, Form, Grid, Input, theme, Typography, message } from "antd";
-import { LockOutlined, MailOutlined, PhoneOutlined } from "@ant-design/icons";
 import logo from "../../../Logo.svg";
 
-import AWSCognitoUserPool from "../../../shared/api/AWSCognitoUserPool";
 import { CognitoUserAttribute } from "amazon-cognito-identity-js";
 import { useNavigate } from "react-router-dom";
+import AWSCognitoUserPool from "../../../shared/api/AWSCognitoUserPool";
+import TextArea from "antd/es/input/TextArea";
 
 const { useToken } = theme;
 const { useBreakpoint } = Grid;
 const { Text, Title, Link } = Typography;
+
+// Helper function to validate phone number
+const validatePhoneNumber = (_, value) => {
+  if (!value) {
+    return Promise.resolve();
+  }
+  const phoneRegex = /^[0-9]+$/; //  numbers only
+  if (!phoneRegex.test(value)) {
+    return Promise.reject(new Error("Please enter a valid phone number (numbers only)."));
+  }
+  return Promise.resolve();
+};
+
 
 export default function RegisterPage() {
   const { token } = useToken();
@@ -34,13 +49,13 @@ export default function RegisterPage() {
 
       const attributeList = [
         new CognitoUserAttribute({ Name: 'email', Value: values.email }),
-        new CognitoUserAttribute({ Name: 'phone_number', Value: values.phone || '+1234567890' }),  // Use values.phone
-        new CognitoUserAttribute({ Name: 'given_name', Value: values.company_Name || 'John' }),  // Use values.company_Name as given_name
-        new CognitoUserAttribute({ Name: 'family_name', Value: 'Doe' }),  // Keep family name as Doe
-        new CognitoUserAttribute({ Name: 'name', Value: values.company_Name || 'John Doe' }),  // Use values.company_Name
-        new CognitoUserAttribute({ Name: 'gender', Value: 'Male' }),
-        new CognitoUserAttribute({ Name: 'address', Value: '123 Street, City, Country' }),
-        new CognitoUserAttribute({ Name: 'website', Value: 'https://example.com' }),
+        new CognitoUserAttribute({ Name: 'phone_number', Value: values.phone?.countryCode + values.phone?.number }),
+        new CognitoUserAttribute({ Name: 'given_name', Value: values.given_name }),
+        new CognitoUserAttribute({ Name: 'family_name', Value: values.family_name }),
+        new CognitoUserAttribute({ Name: 'name', Value: values.company_name }),
+        new CognitoUserAttribute({ Name: 'gender', Value: values.gender }),
+        new CognitoUserAttribute({ Name: 'address', Value: values.address }),
+        new CognitoUserAttribute({ Name: 'website', Value: values.website }),
       ];
 
       AWSCognitoUserPool.signUp(
@@ -120,7 +135,7 @@ export default function RegisterPage() {
     <section style={styles.section}>
       <div style={styles.container}>
         <div style={styles.header}>
-          <img src={logo} alt="logo"/>
+          <img src={logo} alt="logo" />
           <Title style={styles.title}>Sign up</Title>
           <Text style={styles.text}>
             Join FaceBot today! Fill in your details below to create an account.
@@ -138,6 +153,97 @@ export default function RegisterPage() {
           form={form}
         >
           <Form.Item
+            name="given_name"
+            rules={[
+              {
+                type: "string",
+                required: true,
+                message: "Please input your First Name!",
+                whitespace: true, // Prevents empty strings
+              },
+              {
+                min: 2,
+                message: "First Name must be at least 2 characters!",
+              },
+              {
+                max: 50,
+                message: "First Name cannot be longer than 50 characters!",
+              },
+            ]}
+          >
+            <Input
+              prefix={<MailOutlined />}
+              placeholder="First Name"
+              type="text"
+              size="large"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="family_name"
+            rules={[
+              {
+                type: "string",
+                required: true,
+                message: "Please input your Last Name!",
+                whitespace: true, // Prevents empty strings
+              },
+              {
+                min: 2,
+                message: "Last Name must be at least 2 characters!",
+              },
+              {
+                max: 50,
+                message: "Last Name cannot be longer than 50 characters!",
+              },
+            ]}
+          >
+            <Input
+              prefix={<MailOutlined />}
+              placeholder="Last Name"
+              type="text"
+              size="large"
+            />
+          </Form.Item>
+
+
+          <Form.Item
+            name="website"
+            rules={[
+              {
+                type: "url",
+                required: true,
+                message: "Please input your Website!",
+              },
+              {
+                max: 200,
+                message: "Website URL cannot be longer than 200 characters!",
+              },
+              {
+                // Custom validation to check if the URL starts with http:// or https://
+                validator: (_, value) => {
+                  if (!value) {
+                    return Promise.resolve(); // Allow empty values if not required
+                  }
+                  if (!value.startsWith("http://") && !value.startsWith("https://")) {
+                    return Promise.reject(
+                      new Error("Website URL must start with http:// or https://")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <Input
+              prefix={<LinkOutlined />}
+              placeholder="Website"
+              type="url"
+              size="large"
+            />
+          </Form.Item>
+
+          <Form.Item
             name="email"
             rules={[
               {
@@ -154,30 +260,65 @@ export default function RegisterPage() {
               size="large"
             />
           </Form.Item>
-          <Form.Item
-            name="phone"
-            rules={[
-              {
-                required: true,
-                message: "Please input your phone number!",
-              }
-            ]}
-          >
-            <Input
-              prefix={<PhoneOutlined />}
-              placeholder="Phone"
-              type="text"
-              size="large"
-            />
+
+          <Form.Item>
+            <Space.Compact>
+              <Form.Item
+                name={["phone", "countryCode"]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Country code is required!",
+                  },
+                  {
+                    pattern: /^\+[0-9]+$/,  // Match only plus sign followed by digits
+                    message: "Please enter a valid country code (e.g., +1).",
+                  },
+                ]}
+                noStyle
+              >
+                <Input
+                  placeholder="+1"
+                  type="text"
+                  size="large"
+                  style={{ width: "4rem" }}
+                />
+              </Form.Item>
+
+              <Form.Item
+                name={["phone", "number"]}
+                rules={[
+                  { required: true, message: "Phone number is required!" },
+                  { validator: validatePhoneNumber },
+                ]}
+                noStyle
+              >
+                <Input
+                  placeholder="Phone"
+                  type="text"
+                  size="large"
+                  style={{ width: "19.7rem" }}
+                />
+              </Form.Item>
+            </Space.Compact>
           </Form.Item>
 
           <Form.Item
-            name="company_Name"
+            name="company_name"
             rules={[
               {
                 type: "string",
                 required: true,
                 message: "Please input your Company Name!",
+                whitespace: true, // Prevents empty strings
+              },
+              {
+                min: 2,
+                message: "Company Name must be at least 2 characters!",
+              },
+              {
+                max: 100,
+                message: "Company Name cannot be longer than 100 characters!",
               },
             ]}
           >
@@ -199,7 +340,16 @@ export default function RegisterPage() {
               {
                 min: 8,
                 message: "Password must be at least 8 characters!",
-              }
+              },
+              {
+                max: 100,
+                message: "Password cannot be longer than 100 characters!",
+              },
+              {
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).*$/,
+                message:
+                  "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character!",
+              },
             ]}
           >
             <Input.Password
@@ -219,10 +369,12 @@ export default function RegisterPage() {
               },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue('password') === value) {
+                  if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('The two passwords that you entered do not match!'));
+                  return Promise.reject(
+                    new Error("The two passwords that you entered do not match!")
+                  );
                 },
               }),
             ]}
@@ -235,12 +387,37 @@ export default function RegisterPage() {
             />
           </Form.Item>
 
+          <Form.Item
+            name="address"
+            rules={[
+              {
+                type: "string",
+                required: true,
+                message: "Please input your Office Address!",
+                whitespace: true, // Prevents empty strings
+              },
+              {
+                min: 10,
+                message: "Address must be at least 10 characters!",
+              },
+              {
+                max: 200,
+                message: "Address cannot be longer than 200 characters!",
+              },
+            ]}
+          >
+            <TextArea
+              placeholder="Enter Your Office Address"
+              autoSize={{ minRows: 2, maxRows: 6 }}
+            />
+          </Form.Item>
+
           <Form.Item style={{ marginBottom: "0px" }}>
             <Button block="true" size="large" loading={isLoading} type="primary" htmlType="submit">
               Sign up
             </Button>
             <div style={styles.footer}>
-              <Text style={styles.text}>Already have an account?</Text>
+              <Text style={styles.text}>Already have an account? </Text>
               <Link href="/">Sign in</Link>
             </div>
           </Form.Item>

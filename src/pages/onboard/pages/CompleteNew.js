@@ -20,9 +20,12 @@ const Complete = ({ IsAvatarId }) => {
 
   const KB_ID = getCookie('fb_kb_id');
   const PARTNER_ID = getCookie('fb_partner_id');
+  const FACEBOT_ID = getCookie('fb_id');
 
   useEffect(() => {
-    StartGenerateBGKB();
+    if(FACEBOT_ID){
+      StartGenerateBGKB();
+    }
   }, []);
 
   useEffect(() => {
