@@ -15,6 +15,7 @@ import ForgotPasswordPage from "./pages/account/forgot-password";
 import ContentKB from "./pages/contentKB";
 import { useContext } from "react";
 import { FbContext } from "./shared/rbac/context";
+import { Button, Result } from "antd";
 
 function RootRouter() {
 
@@ -58,6 +59,13 @@ function RootRouter() {
         >
           <Route index element={<Dashboard />} />
           <Route path="content-kb" element={<ContentKB />} />
+          <Route path="*" element={  <Result
+            status="404"
+            title="404"
+            subTitle="Sorry, the page you visited does not exist."
+            extra={<Button type="primary" onClick={() => window.history.back() }>Back Home</Button>}
+          />} />
+
         </Route>
 
 

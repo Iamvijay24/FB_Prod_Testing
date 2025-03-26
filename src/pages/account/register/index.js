@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { Button, Form, Grid, Input, theme, Typography } from "antd";
+import { Button, Form, Grid, Input, theme, Typography, message } from "antd";
 import { LockOutlined, MailOutlined, PhoneOutlined } from "@ant-design/icons";
 import logo from "../../../Logo.svg";
 
 import AWSCognitoUserPool from "../../../shared/api/AWSCognitoUserPool";
 import { CognitoUserAttribute } from "amazon-cognito-identity-js";
 import { useNavigate } from "react-router-dom";
-
 
 const { useToken } = theme;
 const { useBreakpoint } = Grid;
@@ -21,39 +20,56 @@ export default function RegisterPage() {
 
   const [isLoading, setLoading] = useState(false);
 
-
-  const handleFinish = (values) => {
+  const handleFinish = async(values) => { //Make it async to use await
     console.log("Received values of form: ", values);
+    setLoading(true); // Set loading to true before the signup process starts
 
-    const attributeList = [
-      new CognitoUserAttribute({ Name: 'email', Value: values.email }),
-      new CognitoUserAttribute({ Name: 'phone_number', Value: values.phone_number || '+1234567890' }),
-      new CognitoUserAttribute({ Name: 'given_name', Value: values.given_name || 'John' }),
-      new CognitoUserAttribute({ Name: 'family_name', Value: values.family_name || 'Doe' }),
-      new CognitoUserAttribute({ Name: 'gender', Value: values.gender || 'Male' }),
-      new CognitoUserAttribute({ Name: 'address', Value: values.address || '123 Street, City, Country' }),
-      new CognitoUserAttribute({ Name: 'website', Value: values.website || 'https://example.com' }),
+    try {
 
-    ];
-
-    AWSCognitoUserPool.signUp(
-      values.email,
-      values.password,
-      attributeList,
-      null,
-      (err, result) => {
-
-        if (err) {
-          setLoading(false);
-          return;
-        }
-
-       
-        navigate('/verify', {
-          state: { email: values.email }
-        });
+      if (values.password !== values.confirm_password) {
+        message.error("Passwords do not match");
+        setLoading(false);
+        return;
       }
-    );
+
+      const attributeList = [
+        new CognitoUserAttribute({ Name: 'email', Value: values.email }),
+        new CognitoUserAttribute({ Name: 'phone_number', Value: values.phone || '+1234567890' }),  // Use values.phone
+        new CognitoUserAttribute({ Name: 'given_name', Value: values.company_Name || 'John' }),  // Use values.company_Name as given_name
+        new CognitoUserAttribute({ Name: 'family_name', Value: 'Doe' }),  // Keep family name as Doe
+        new CognitoUserAttribute({ Name: 'name', Value: values.company_Name || 'John Doe' }),  // Use values.company_Name
+        new CognitoUserAttribute({ Name: 'gender', Value: 'Male' }),
+        new CognitoUserAttribute({ Name: 'address', Value: '123 Street, City, Country' }),
+        new CognitoUserAttribute({ Name: 'website', Value: 'https://example.com' }),
+      ];
+
+      AWSCognitoUserPool.signUp(
+        values.email,
+        values.password,
+        attributeList,
+        null,
+        (err, result) => {
+          setLoading(false); // Reset loading state
+
+          if (err) {
+            console.error("Signup error:", err);  // Log the full error object for debugging
+            message.error(err.message || "Signup failed. Please try again.");
+            return;
+          }
+
+          console.log("Signup result:", result);
+          message.success("Signup successful!  Please verify your email.");
+          navigate('/verify', {
+            state: { email: values.email }
+          });
+        }
+      );
+
+    } catch (error) {
+      console.error("Error during signup:", error);  // Log errors during attribute creation or navigate
+      message.error("An error occurred during signup. Please try again.");
+      setLoading(false); // Ensure loading is set to false even on error
+    }
 
   };
 
@@ -105,13 +121,10 @@ export default function RegisterPage() {
       <div style={styles.container}>
         <div style={styles.header}>
           <img src={logo} alt="logo"/>
-
-
           <Title style={styles.title}>Sign up</Title>
           <Text style={styles.text}>
-  Join FaceBot today! Fill in your details below to create an account.
+            Join FaceBot today! Fill in your details below to create an account.
           </Text>
-
         </div>
         <Form
           name="normal_login"
@@ -147,15 +160,7 @@ export default function RegisterPage() {
               {
                 required: true,
                 message: "Please input your phone number!",
-              },
-              {
-                pattern: /^[0-9]+$/,  // Allows only digits
-                message: "Please enter a valid phone number (numbers only)",
-              },
-              {
-                min: 10, // Or a more appropriate minimum length
-                message: "Phone number must be at least 10 digits",
-              },
+              }
             ]}
           >
             <Input
@@ -170,7 +175,7 @@ export default function RegisterPage() {
             name="company_Name"
             rules={[
               {
-                type: "Company Name",
+                type: "string",
                 required: true,
                 message: "Please input your Company Name!",
               },
@@ -179,7 +184,7 @@ export default function RegisterPage() {
             <Input
               prefix={<MailOutlined />}
               placeholder="Company Name"
-              type="Company Name"
+              type="text"
               size="large"
             />
           </Form.Item>
@@ -191,6 +196,10 @@ export default function RegisterPage() {
                 required: true,
                 message: "Please input your Password!",
               },
+              {
+                min: 8,
+                message: "Password must be at least 8 characters!",
+              }
             ]}
           >
             <Input.Password
@@ -208,6 +217,14 @@ export default function RegisterPage() {
                 required: true,
                 message: "Please input your confirm Password!",
               },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('The two passwords that you entered do not match!'));
+                },
+              }),
             ]}
           >
             <Input.Password
@@ -217,19 +234,17 @@ export default function RegisterPage() {
               placeholder="Confirm Password"
             />
           </Form.Item>
-          
+
           <Form.Item style={{ marginBottom: "0px" }}>
             <Button block="true" size="large" loading={isLoading} type="primary" htmlType="submit">
               Sign up
             </Button>
             <div style={styles.footer}>
-              <Text style={styles.text}>Already have an account?</Text>{" "}
+              <Text style={styles.text}>Already have an account?</Text>
               <Link href="/">Sign in</Link>
             </div>
           </Form.Item>
         </Form>
-
-        
       </div>
     </section>
   );

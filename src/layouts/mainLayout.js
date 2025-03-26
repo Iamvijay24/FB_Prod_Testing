@@ -23,16 +23,28 @@ function getItem(label, key, icon, path, children) {
 }
 
 const menuItems = [
+  { type: "divider" },
+  { type: "divider" },
   getItem("Dashboard", "dashboard", <img src={dashboardIcon} alt="dashboard" />, "/"),
   { type: "divider" },
   getItem("Content KB", "content-kb", <img src={contentIcon} alt="content" />, "/content-kb"),
-  getItem("Content FaceBot", "content-facebot", <img src={manageIcon} alt="content" />, "/content-facebot"),
   { type: "divider" },
-  // getItem("Travel", "travel", null, "/admin/travel/dashboard", [
-  //   getItem("Packages", "travel-packages", null, "/admin/travel/packages")
-  // ]),
-  getItem("Billing", "billing", <img src={billingIcon} alt="billing" />, "/billing"),
-  getItem("Support", "support", <img src={supportIcon} alt="support" />, "/support"),
+  { type: "divider" },
+  getItem("FaceBot", "content-facebot", <img src={manageIcon} alt="content" />, "content-facebot"),
+  { type: "divider" },
+  { type: "divider" },
+  getItem("Reports", "travel", <img src={dashboardIcon} alt="dashboard" />, "reports", [
+    getItem("User Engagement", "user-engagement", <img src={dashboardIcon} alt="dashboard" />, "user-engagement"),
+    getItem("User Feedback", "user-feedback", <img src={dashboardIcon} alt="dashboard" />, "user-feedback"),
+    getItem("Lead Generation", "lead-generation", <img src={dashboardIcon} alt="dashboard" />, "lead-generation"),
+    getItem("FaceBot Performance", "facebot-performance", <img src={dashboardIcon} alt="dashboard" />, "facebot-performance"),
+  ]),
+  { type: "divider" },
+  { type: "divider" },
+  getItem("Billing", "billing", <img src={billingIcon} alt="billing" />, "billing"),
+  { type: "divider" },
+  { type: "divider" },
+  getItem("Support", "support", <img src={supportIcon} alt="support" />, "support"),
 ];
 
 const MainLayout = () => {
@@ -109,7 +121,7 @@ const MainLayout = () => {
 
       <Layout>
         <Sider
-          width={200}
+          width={250}
           collapsible collapsed={collapsed} onCollapse={setCollapsed}
         >
           <Menu
