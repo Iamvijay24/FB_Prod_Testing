@@ -53,7 +53,7 @@ export default function RegisterPage() {
         new CognitoUserAttribute({ Name: 'given_name', Value: values.given_name }),
         new CognitoUserAttribute({ Name: 'family_name', Value: values.family_name }),
         new CognitoUserAttribute({ Name: 'name', Value: values.company_name }),
-        new CognitoUserAttribute({ Name: 'gender', Value: values.gender }),
+        new CognitoUserAttribute({ Name: 'gender', Value: "male" }),
         new CognitoUserAttribute({ Name: 'address', Value: values.address }),
         new CognitoUserAttribute({ Name: 'website', Value: values.website }),
       ];
