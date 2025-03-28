@@ -104,7 +104,13 @@ const StartHere = ({ setCurrent }) => {
       setFileList([]); 
     },
     beforeUpload: (file) => {
-      const maxSize = 1 * 1024 * 1024; 
+      const maxSize = 1 * 1024 * 1024;
+      const allowedTypes = ["application/pdf", "text/html", "text/plain"]; 
+
+    if (!allowedTypes.includes(file.type)) {
+      message.error("Invalid file type. Only PDF, HTML, and TXT files are allowed.");
+      return false;
+    } 
 
       if (file.size > maxSize) {
         message.error("File size must be 1MB or less. Please try again!");
