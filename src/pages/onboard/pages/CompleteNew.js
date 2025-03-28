@@ -18,15 +18,8 @@ const Complete = ({ IsAvatarId }) => {
   const loginTimeoutRef = useRef(null);
   const countdownTimerRef = useRef(null);
 
-  const KB_ID = getCookie('fb_kb_id');
   const PARTNER_ID = getCookie('fb_partner_id');
   const FACEBOT_ID = getCookie('fb_id');
-
-  useEffect(() => {
-    if(FACEBOT_ID){
-      StartGenerateBGKB();
-    }
-  }, []);
 
   useEffect(() => {
     // Clear any existing timeouts/intervals
@@ -63,19 +56,25 @@ const Complete = ({ IsAvatarId }) => {
     };
   }, []); // Empty dependency array
 
-  const StartGenerateBGKB = async() => {
+  const StartGenerateBGKB = async(FACEBOT_ID) => {
     try {
       setLoading(true);
       await makeApiRequest("generate_kb_bg", {
         partner_id: PARTNER_ID,
-        fb_id: `${PARTNER_ID}:::${KB_ID}:::${IsAvatarId}`,
+        fb_id: FACEBOT_ID,
       });
       authCxt.setOnboarded(true);
+      navigate("/dashboard");
     } catch (error) {
       console.error("Error fetching avatars:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+
+  const handleFinish = (FACEBOT_ID) => {
+    StartGenerateBGKB(FACEBOT_ID);
   };
 
   return (
@@ -156,11 +155,11 @@ const Complete = ({ IsAvatarId }) => {
           <Button
             size="large"
             type="primary"
-            style={{ width: "10rem" }}
-            onClick={() => navigate("/dashboard")}
+            // style={{ width: "10rem" }}
+            onClick={() => handleFinish(FACEBOT_ID)}
             disabled={!loginButtonEnabled}
           >
-            Go to Dashboard {loginButtonEnabled ? "" : `(${countdown})`}
+           Publish & Go to Dashboard {loginButtonEnabled ? "" : `(${countdown})`}
           </Button>
         </Space>
       </div>

@@ -1,22 +1,20 @@
+import { Button, Layout, Menu, theme, Typography } from 'antd';
 import React, { useState } from 'react';
-import { Avatar, Button, Dropdown, Layout, Menu, theme, Typography } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import logo from '../Logo.svg';
-import { FiLogOut } from "react-icons/fi";
 import styles from './layout.module.scss';
 
 import { FaRegQuestionCircle } from "react-icons/fa";
 
 // icon
-import dashboardIcon from '../assets/guage.svg';
+import { default as dashboardIcon, default as supportIcon } from '../assets/guage.svg';
 import contentIcon from '../assets/library.svg';
-import manageIcon from '../assets/users.svg';
 import billingIcon from '../assets/receipt.svg';
-import supportIcon from '../assets/guage.svg';
+import manageIcon from '../assets/users.svg';
+import HeaderLayout from './header';
 
 const { Title, Text } = Typography;
 
-const { Header, Content, Sider } = Layout;
+const { Content, Sider } = Layout;
 
 function getItem(label, key, icon, path, children) {
   return { key, icon, path, children, label };
@@ -56,10 +54,6 @@ const MainLayout = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const handleLogOut = () => {
-    navigate("/");
-  };
-
   const findActiveKey = (items, path) => {
     for (const item of items) {
       if (item.path === path) return item.key;
@@ -73,51 +67,11 @@ const MainLayout = () => {
 
   const currentKey = findActiveKey(menuItems, location.pathname) || "dashboard";
 
-  const dropdownItems = [
-    {
-      key: "1",
-      label: <span onClick={handleLogOut}> Log out</span>,
-      icon: <FiLogOut />
-    }
-  ];
+
 
   return (
     <Layout>
-      <Header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          // padding: '0 20px',
-          background: colorBgContainer,
-        }}
-      >
-        {/* Logo Section */}
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <img src={logo} alt="Logo" style={{ height: '40px', marginRight: '12px' }} />
-        </div>
-
-        {/* User Avatar Section */}
-        <Dropdown menu={{ items: dropdownItems }} trigger={["click"]}>
-          <Avatar
-            size={32}
-            shape="circle"
-            style={{
-              cursor: "pointer",
-              backgroundColor: "#1890ff",
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '18px',
-              fontWeight: 'bold',
-            }}
-          >
-      K
-          </Avatar>
-        </Dropdown>
-      </Header>
-
-   
+      <HeaderLayout />
 
       <Layout>
         <Sider

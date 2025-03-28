@@ -11,15 +11,14 @@ const Auth = ({ children }) => {
     authenticated: !!initialToken,
     accessToken: initialToken || '',
     storeId: storeId,
-    onboarded: onboardedCookie === 'true', // Initialize from cookie
+    onboarded: onboardedCookie === 'true',
   };
 
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-    // Update state based on cookies when the component mounts
     const token = getCookie('accessToken');
-    const onboarded = getCookie('onboarded') === 'true'; // Read from cookie
+    const onboarded = getCookie('onboarded') === 'true';
     setState((prevState) => ({
       ...prevState,
       authenticated: !!token,
@@ -33,13 +32,7 @@ const Auth = ({ children }) => {
   const logout = () => {
     deleteCookie('accessToken');
     deleteCookie('refreshToken');
-    deleteCookie('authenticated');
-    deleteCookie('userId');
-    deleteCookie('storeId');
-    deleteCookie('accountId');
-    deleteCookie('name');
-    deleteCookie('onboarded'); // Delete onboarded cookie
-    setState({ authenticated: false, accessToken: '', storeId: '', onboarded: false });
+    setState({ authenticated: false, accessToken: '', storeId: '' });
   };
 
   const handleAuthentication = (data) => {
