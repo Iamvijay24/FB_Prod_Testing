@@ -165,14 +165,11 @@ export default function LoginPage() {
               placeholder="Password"
             />
           </Form.Item>
-          {/* <Form.Item>
-            <Form.Item name="remember" valuePropName="unChecked" noStyle>
-              <Checkbox>Remember me</Checkbox>
-            </Form.Item>
+          <Form.Item>
             <a style={styles.forgotPassword} href="/forgot-password">
               Forgot password?
             </a>
-          </Form.Item> */}
+          </Form.Item>
           <Form.Item style={{ marginBottom: "0px" }}>
             <Button block="true" loading={isLoading} size="large" type="primary" htmlType="submit">
               Log in
