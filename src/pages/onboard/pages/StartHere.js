@@ -1,23 +1,26 @@
-import { Button, Col, Form, message, Row, Typography, Upload } from 'antd';
+import { Button, Col, Form, Input, message, Row, Typography, Upload } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { GrLinkNext } from "react-icons/gr";
 import { makeApiRequest } from '../../../shared/api';
 import { v4 as uuidv4 } from "uuid";
 import axios from 'axios';
 import { setCookie } from 'cookies-next';
+import { IoCloudUploadOutline } from "react-icons/io5";
+
 
 const { Title, Text } = Typography;
 
-const StartHere = ({ setCurrent }) => {
+const StartHere = ({ setCurrent, setKbName, setKbDescription, kbName, kbDescription }) => {
   const [fileList, setFileList] = useState([]); // Initialize as an array
   const [uploading, setUploading] = useState(false);
+
 
   useEffect(() => {
     setCookie('fb_partner_id', "c5c05e02d6");
   }, []);
 
   // Function to get the upload URL and fields from backend
-  const getUploadUrl = async () => {
+  const getUploadUrl = async() => {
     try {
       const newUuid = uuidv4(); // Generate a new UUID
       let params = {
@@ -46,11 +49,18 @@ const StartHere = ({ setCurrent }) => {
     }
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async() => {
     if (!fileList || fileList.length === 0) { // Check fileList correctly
       message.error('Please upload a file.');
       return;
     }
+
+    if (!kbName || kbName.trim() === '') {
+      message.error('Please enter a name.');
+      return;
+    }
+
+
 
     if (uploading) {
       return;
@@ -67,7 +77,7 @@ const StartHere = ({ setCurrent }) => {
 
       const formData = new FormData();
 
-      // Append the fields to the form data 
+      // Append the fields to the form data
       if (uploadData.fields) {
         for (const key in uploadData.fields) {
           formData.append(key, uploadData.fields[key]);
@@ -98,27 +108,27 @@ const StartHere = ({ setCurrent }) => {
 
   const props = {
     multiple: false,
-    maxCount: 1, 
-    accept: ".pdf, .html, .txt", 
+    maxCount: 1,
+    accept: ".pdf, .html, .txt",
     onRemove: () => {
-      setFileList([]); 
+      setFileList([]);
     },
     beforeUpload: (file) => {
       const maxSize = 1 * 1024 * 1024;
-      const allowedTypes = ["application/pdf", "text/html", "text/plain"]; 
+      const allowedTypes = ["application/pdf", "text/html", "text/plain"];
 
-    if (!allowedTypes.includes(file.type)) {
-      message.error("Invalid file type. Only PDF, HTML, and TXT files are allowed.");
-      return false;
-    } 
+      if (!allowedTypes.includes(file.type)) {
+        message.error("Invalid file type. Only PDF, HTML, and TXT files are allowed.");
+        return false;
+      }
 
       if (file.size > maxSize) {
         message.error("File size must be 1MB or less. Please try again!");
-        return false; 
+        return false;
       }
 
-      setFileList([file]); 
-      return false; 
+      setFileList([file]);
+      return false;
     },
     fileList,
   };
@@ -141,21 +151,57 @@ const StartHere = ({ setCurrent }) => {
 
       <Row justify="center" style={{ marginTop: 20 }}>
         <Col xs={24} sm={20} md={16} lg={12} xl={10}>
-        <div style={{ 
-      maxHeight: '500px', 
-      overflowY: 'auto', 
-      padding: '20px' 
-    }}>
-          <Upload.Dragger {...props}>
-            <div className="ant-upload-drag-icon" style={{ marginBottom: '10px' }}></div>
-            <p className="ant-upload-text">
-              Drag & Drop files here or <span style={{ color: '#1890ff', cursor: 'pointer' }}>Click to Browse</span>
-            </p>
-            <p className="ant-upload-hint">
-              Allowed file types: <strong>PDF, HTML and TXT</strong> only. Max file size: 1MB.
-            </p>
-          </Upload.Dragger>
-          </div>
+
+          <Form
+            layout="vertical"
+            style={{maxWidth: '600px', margin: '0 auto'}}
+          >
+            <Form.Item
+              label="Name"
+              required
+              rules={[{ required: true, message: 'Please enter a name!' }]}
+            >
+              <Input
+                placeholder="Enter name"
+                value={kbName}
+                size='large'
+                onChange={(e) => setKbName(e.target.value)}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Description"
+              rules={[{ required: true, message: 'Please enter a description!' }]}
+            >
+              <Input.TextArea
+                rows={2}
+                placeholder="Enter description"
+                value={kbDescription}
+                size='large'
+                onChange={(e) => setKbDescription(e.target.value)}
+              />
+            </Form.Item>
+
+
+            <div style={{
+              maxHeight: '500px',
+              overflowY: 'auto',
+              padding: '20px'
+            }}>
+              <Upload.Dragger {...props}>
+                <div className="ant-upload-drag-icon" style={{ marginBottom: '10px' }}>
+                  <IoCloudUploadOutline size={40} style={{ color: '#1890ff' }}/>
+                </div>
+                <p className="ant-upload-text">
+                Drag & Drop files here or <span style={{ color: '#1890ff', cursor: 'pointer' }}>Click to
+                  Browse</span>
+                </p>
+                <p className="ant-upload-hint">
+                Allowed file types: <strong>PDF, HTML and TXT</strong> only. Max file size: 1MB.
+                </p>
+              </Upload.Dragger>
+            </div>
+          </Form>
           <Form.Item style={{ textAlign: 'center', marginTop: 20 }}>
             <Button
               type="primary"
@@ -164,7 +210,7 @@ const StartHere = ({ setCurrent }) => {
               iconPosition="end"
               style={{ width: '10rem' }}
               onClick={handleUpload}
-              disabled={!fileList || fileList.length === 0 || uploading}
+              disabled={!fileList || fileList.length === 0 || uploading || !kbName || kbName.trim() === ''}
               loading={uploading}
             >
               Continue

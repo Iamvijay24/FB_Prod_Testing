@@ -8,6 +8,8 @@ import {
   Space,
   Button,
   Modal,
+  Input,
+  Form,
 } from "antd";
 import React, { useEffect, useState, useRef } from "react";
 import styles from "./style.module.scss";
@@ -15,6 +17,7 @@ import { makeApiRequest } from "../../../shared/api";
 import Skeleton from "react-loading-skeleton";
 import Hls from "hls.js";
 import { getCookie, setCookie } from "cookies-next";
+import { FaRegPlayCircle } from "react-icons/fa";
 
 const { Title, Text } = Typography;
 
@@ -24,12 +27,14 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
   const [isLoading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedKnowledgeLibrary, setSelectedKnowledgeLibrary] = useState(null);
-
   const [isPreviewModalVisible, setIsPreviewModalVisible] = useState(false);
-  const videoRef = useRef(null); // Add a ref for the video player
+  const videoRef = useRef(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isHovered, setIsHovered] = useState(false);
+  const [facebotName, setFacebotName] = useState(""); // State for the input
+  const [form] = Form.useForm(); // Using form
 
-  const KB_ID = getCookie('fb_kb_id');
+  const KB_ID = getCookie("fb_kb_id");
 
   useEffect(() => {
     getAllAvatars();
@@ -45,6 +50,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
       setAvatars(response.data);
       setSelectedAvatar(response.data[0] || null);
       setSelectedKnowledgeLibrary(response.data[0]?.avatar_id || null);
+      setFacebotName(response.data[0]?.avatar_name || ""); // Set initial value
     } catch (error) {
       console.error("Error fetching avatars:", error);
       setAvatars([]);
@@ -73,24 +79,23 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Use avatar names as Knowledge Library options
   const knowledgeLibraryOptions = avatars.map((avatar) => ({
     label: avatar.avatar_name,
-    value: avatar.avatar_id, // Or avatar.avatar_id if that's more appropriate
+    value: avatar.avatar_id,
   }));
 
   const handleKnowledgeLibraryChange = (value) => {
-    // Find the selected avatar by avatar_id
     const selected = avatars.find((avatar) => avatar.avatar_id === value);
     if (selected) {
       setSelectedAvatar(selected);
       setAvatarId(selected.avatar_id);
+      setFacebotName(selected.avatar_name); // Update name
       const slideIndex = chunkedAvatars.findIndex((group) =>
         group.some((avatar) => avatar.avatar_id === selected.avatar_id)
       );
-  
+
       if (slideIndex !== -1) {
-        setCurrentSlide(slideIndex); // Update the currentSlide state
+        setCurrentSlide(slideIndex);
       }
     }
     setSelectedKnowledgeLibrary(value);
@@ -100,7 +105,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
   const handleAvatarSelect = (avatar) => {
     setSelectedAvatar(avatar);
     setAvatarId(avatar.avatar_id);
-    
+    setFacebotName(avatar.avatar_name); // Update the name
     getAvatarById();
     setSelectedKnowledgeLibrary(avatar.avatar_id);
   };
@@ -140,7 +145,6 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
 
   const handleFinishSetup = () => {
     setCurrent(4);
-
     CreateFaceBot();
   };
 
@@ -151,14 +155,14 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
         partner_id: "c5c05e02d6",
         kb_id: KB_ID,
         avatar_id: selectedAvatar?.avatar_id,
-        facebot_name: selectedAvatar?.avatar_name,
+        facebot_name: facebotName, // Use the state name here
       });
 
-      setCookie('fb_id', response?.data?.fb_id);
+      setCookie("fb_id", response?.data?.fb_id);
 
       console.log("FaceBot created successfully:", response);
     } catch (error) {
-      console.error("Error fetching avatars:", error);
+      console.error("Error creating FaceBot:", error);
     } finally {
       setLoading(false);
     }
@@ -185,7 +189,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
         controls
         width="100%"
         height="auto"
-        style={{ backgroundColor: "black" }} // Optional: Set a background color
+        style={{ backgroundColor: "black" }}
       >
         <source src={videoUrl} type={videoType} />
         Your browser does not support the video tag.
@@ -194,7 +198,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
   };
 
   useEffect(() => {
-    let hls = null; // Declare hls outside the if block
+    let hls = null;
     if (
       isPreviewModalVisible &&
       videoRef.current &&
@@ -202,7 +206,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
     ) {
       const video = videoRef.current;
       if (Hls.isSupported()) {
-        hls = new Hls(); // Initialize hls here
+        hls = new Hls();
         hls.loadSource(selectedAvatar.sample_video);
         hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -250,14 +254,14 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
       <Row justify="center">
         <Col xs={24} sm={20} md={16} lg={12} xl={14}>
           <Title level={3} style={{ fontWeight: "normal" }}>
-            Yaa! almost there! - Create FaceAvatar
+            Yaa! almost there! - Create FaceBot
           </Title>
           <Text className={styles.description}>
-            Setting up your FaceAvatar allows you to create a personalised
-            digital representation of your product or service within virtual
-            environments. Customising your FaceAvatar gives you the opportunity
-            to showcase your unique style and identity. Choose from a variety of
-            features to make your FaceAvatar truly stand out.
+            Setting up your FaceBot allows you to create a personalised digital
+            representation of your product or service within virtual
+            environments. Customising your FaceBot gives you the opportunity to
+            showcase your unique style and identity. Choose from a variety of
+            features to make your FaceBot truly stand out.
           </Text>
         </Col>
       </Row>
@@ -265,33 +269,68 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
       <Row justify="center">
         <Col xs={24} sm={20} md={16} lg={12} xl={14}>
           <Title level={3} style={{ fontWeight: "normal", marginTop: 50 }}>
-            Select FaceAvatar
+            Select FaceBot
           </Title>
           <Text className={styles.description}>
-            Setting up your FaceAvatar allows you to create a personalised
-            digital representation of your product or service within virtual
-            environments. Customising your FaceAvatar gives you the opportunity
-            to showcase your unique style and identity. Choose from a variety of
-            features to make your FaceAvatar truly stand out.
+            Setting up your FaceBot allows you to create a personalised digital
+            representation of your product or service within virtual
+            environments. Customising your FaceBot gives you the opportunity to
+            showcase your unique style and identity. Choose from a variety of
+            features to make your FaceBot truly stand out.
           </Text>
         </Col>
       </Row>
 
       <div style={{ maxWidth: 830, margin: "auto", padding: 20 }}>
         <Title level={4} style={{ fontWeight: "normal", marginTop: 50 }}>
-          Selected FaceAvatar
+          Selected FaceBot
         </Title>
         <Row gutter={16} align="middle" style={{ marginBottom: 24 }}>
           <Col xs={24} sm={12} md={12} lg={12} xl={12}>
             {isLoading ? (
               <Skeleton height={350} width={350} borderRadius="4px" />
             ) : (
-              <Avatar
-                size={350}
-                src={selectedAvatar?.avatar_image}
-                shape="square"
-                style={{ maxWidth: "100%", height: "auto" }} // Ensure the image is responsive
-              />
+              <div
+                style={{ position: "relative", display: "inline-block" }}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              >
+                <Avatar
+                  size={350}
+                  src={selectedAvatar?.avatar_image}
+                  shape="square"
+                  style={{
+                    maxWidth: "100%",
+                    height: "auto",
+                    cursor: "pointer",
+                    filter: isHovered ? "blur(2px)" : "none",
+                    transition: "filter 0.1s ease-in-out",
+                  }}
+                  onClick={() => setIsPreviewModalVisible(true)}
+                />
+
+                {isHovered && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      color: "white",
+                      fontSize: "2rem",
+                      padding: "10px",
+                      borderRadius: "50%",
+                      cursor: "pointer",
+                      transition: "opacity 0.2s ease-in-out",
+                      opacity: 1,
+                    }}
+                    onClick={() => setIsPreviewModalVisible(true)}
+                  >
+                    <FaRegPlayCircle />
+                  </div>
+                )}
+              </div>
             )}
           </Col>
           <Col xs={24} sm={12} md={12} lg={12} xl={12}>
@@ -299,20 +338,26 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
               <>
                 <Skeleton height={24} width={150} />
                 <br />
-                <Skeleton height={24} width={200} />
-                <br />
               </>
             ) : (
-              <div style={{ padding: "0 8px", marginTop: "10px" }}>
-                {" "}
-                <Text strong style={{ marginBottom: 10 }}>
-                  Name:
-                </Text>{" "}
-                {selectedAvatar?.avatar_name}
-                <br />
-                <Text strong>Gender:</Text> {selectedAvatar?.gender}
-                <br />
-              </div>
+              <Form form={form} layout="vertical">
+                <Form.Item
+                  label="FaceBot Name"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter a name for your FaceBot!",
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder="Enter FaceBot Name"
+                    value={facebotName}
+                    allowClear
+                    onChange={(e) => setFacebotName(e.target.value)}
+                  />
+                </Form.Item>
+              </Form>
             )}
           </Col>
         </Row>
@@ -323,7 +368,12 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
           dots={false}
           arrows
           draggable
-          style={{ marginTop: 20, width: "28rem", width: isMobile ? "18rem" : "28rem", marginLeft: isMobile ? 0 : "0", marginRight: isMobile ? 0 : "auto", }}
+          style={{
+            marginTop: 20,
+            width: isMobile ? "18rem" : "28rem",
+            marginLeft: isMobile ? 0 : "0",
+            marginRight: isMobile ? 0 : "auto",
+          }}
           afterChange={handleCarouselChange}
           current={currentSlide}
         >
@@ -368,7 +418,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
             <Skeleton
               height={40}
               width={160}
-              count={2}
+              count={1}
               inline={true}
               style={{ marginRight: 10 }}
             />
@@ -383,7 +433,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
               options={knowledgeLibraryOptions}
               size="large"
               style={{ width: "20rem", marginBottom: 25 }}
-              loading={isLoading} // Consider a separate loading state
+              loading={isLoading}
               value={selectedKnowledgeLibrary}
             />
             <br />
@@ -393,15 +443,9 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
                 size="large"
                 style={{ width: "10rem" }}
                 onClick={handleFinishSetup}
+                disabled={!facebotName} // Disable if name is empty
               >
                 Finish Setup
-              </Button>
-              <Button
-                size="large"
-                style={{ width: "10rem" }}
-                onClick={() => setIsPreviewModalVisible(true)}
-              >
-                Show Preview
               </Button>
             </Space>
           </>
@@ -412,7 +456,17 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
         title="Preview"
         open={isPreviewModalVisible}
         onCancel={() => setIsPreviewModalVisible(false)}
-        width={800} // Adjust width as needed
+        centered
+        footer={
+          <>
+            <Button
+              type="primary"
+              onClick={() => setIsPreviewModalVisible(false)}
+            >
+              Close
+            </Button>
+          </>
+        }
         afterOpen={() => {
           if (videoRef.current) {
             if (selectedAvatar?.sample_video?.endsWith(".m3u8")) {
@@ -440,9 +494,7 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
                       break;
                     default:
                       hls.destroy();
-                      console.error(
-                        "Fatal error encountered, cannot recover."
-                      );
+                      console.error("Fatal error encountered, cannot recover.");
                       break;
                     }
                   }
@@ -463,8 +515,10 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
           }
         }}
       >
-        <div style={{ maxWidth: 850, margin: "auto", padding: 20 }}>
-          {renderPreview()}
+        <div style={{ maxWidth: "600px", margin: "auto", padding: 3 }}>
+          <div style={{ width: "100%", maxWidth: "600px" }}>
+            {renderPreview()}
+          </div>
         </div>
       </Modal>
     </div>

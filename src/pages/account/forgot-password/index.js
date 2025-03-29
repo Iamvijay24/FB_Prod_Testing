@@ -53,7 +53,7 @@ const ForgotPasswordPage = () => {
         message.success('Password changed successfully!');
         setLoading(false);
         setTimeout(() => {
-          navigate('/login');
+          navigate('/');
         }, 1000);
       },
       onFailure(err) {

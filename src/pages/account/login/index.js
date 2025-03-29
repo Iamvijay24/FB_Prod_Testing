@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Checkbox, Form, Grid, Input, message, theme, Typography } from "antd";
+import { Button, Form, Grid, Input, message, theme, Typography } from "antd";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import logo from "../../../Logo.svg";
 import { useNavigate } from "react-router-dom";
@@ -165,14 +165,14 @@ export default function LoginPage() {
               placeholder="Password"
             />
           </Form.Item>
-          <Form.Item>
+          {/* <Form.Item>
             <Form.Item name="remember" valuePropName="unChecked" noStyle>
               <Checkbox>Remember me</Checkbox>
             </Form.Item>
             <a style={styles.forgotPassword} href="/forgot-password">
               Forgot password?
             </a>
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item style={{ marginBottom: "0px" }}>
             <Button block="true" loading={isLoading} size="large" type="primary" htmlType="submit">
               Log in

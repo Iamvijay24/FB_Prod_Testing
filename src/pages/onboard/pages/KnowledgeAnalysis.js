@@ -6,7 +6,7 @@ import { getCookie, setCookie } from 'cookies-next';
 
 const { Title, Text } = Typography;
 
-const KnowledgeAnalysis = ({ setCurrent }) => {
+const KnowledgeAnalysis = ({ setCurrent, kbName, kbDescription }) => {
   const [statusData, setStatusData] = useState(0);
   const [isLoading, setLoading] = useState(true);
 
@@ -36,6 +36,8 @@ const KnowledgeAnalysis = ({ setCurrent }) => {
       const response = await makeApiRequest("create_kb", {
         partner_id: "c5c05e02d6",
         file_id: FILEID,
+        kb_name: kbName,
+        kb_description: kbDescription ? kbDescription : null,
       });
 
       setCookie('fb_kb_id', response?.data?.kb_id);

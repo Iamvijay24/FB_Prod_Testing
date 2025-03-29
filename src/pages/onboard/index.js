@@ -11,6 +11,8 @@ const Onboard = () => {
   
   const [current, setCurrent] = useState(0);
   const [IsAvatarId, setAvatarId] = useState('');
+  const [kbName, setKbName] = useState('');
+  const [kbDescription, setKbDescription] = useState('');
 
 
   const StepItems = [
@@ -44,9 +46,9 @@ const Onboard = () => {
   const renderStepContent = () => {
     switch (current) {
     case 0:
-      return <StartHere setCurrent={setCurrent}/>;
+      return <StartHere setCurrent={setCurrent} setKbName={setKbName} setKbDescription={setKbDescription} kbName={kbName} kbDescription={kbDescription} />;
     case 1:
-      return <KnowledgeAnalysis setCurrent={setCurrent}/>;
+      return <KnowledgeAnalysis setCurrent={setCurrent} kbName={kbName} kbDescription={kbDescription} setKbDescription={setKbDescription} />;
     case 2:
       return <KnowledgeVerification setCurrent={setCurrent}/>;
     case 3:
