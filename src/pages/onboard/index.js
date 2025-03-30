@@ -13,6 +13,7 @@ const Onboard = () => {
   const [IsAvatarId, setAvatarId] = useState('');
   const [kbName, setKbName] = useState('');
   const [kbDescription, setKbDescription] = useState('');
+  const [kbLibrary, setKbLibrary] = useState();
 
 
   const StepItems = [
@@ -50,9 +51,9 @@ const Onboard = () => {
     case 1:
       return <KnowledgeAnalysis setCurrent={setCurrent} kbName={kbName} kbDescription={kbDescription} setKbDescription={setKbDescription} />;
     case 2:
-      return <KnowledgeVerification setCurrent={setCurrent}/>;
+      return <KnowledgeVerification setCurrent={setCurrent} setKbLibrary={setKbLibrary} />;
     case 3:
-      return <CreatingBot setCurrent={setCurrent} setAvatarId={setAvatarId}/>;
+      return <CreatingBot setCurrent={setCurrent} setAvatarId={setAvatarId} kbLibrary={kbLibrary}/>;
     case 4:
       return <Complete IsAvatarId={IsAvatarId}/>;
     default:

@@ -23,6 +23,11 @@ const KnowledgeAnalysis = ({ setCurrent, kbName, kbDescription }) => {
         partner_id: "c5c05e02d6",
         kb_id: kb_id,
       });
+      
+      if(kb_id){
+        setCookie('fb_kb_id', kb_id);
+      }
+
       setStatusData(response?.data?.progress);
     } catch (error) {
       console.error("Error fetching avatars:", error);
@@ -40,12 +45,10 @@ const KnowledgeAnalysis = ({ setCurrent, kbName, kbDescription }) => {
         kb_description: kbDescription ? kbDescription : null,
       });
 
-      setCookie('fb_kb_id', response?.data?.kb_id);
       getKBStatus(response?.data?.kb_id);
 
     } catch (error) {
-      console.error("Error fetching avatars:", error);
-    } finally {
+      console.error("Error fetching data:", error);
     }
   };
 

@@ -21,21 +21,21 @@ import { FaRegPlayCircle } from "react-icons/fa";
 
 const { Title, Text } = Typography;
 
-const CreatingBot = ({ setCurrent, setAvatarId }) => {
+const CreatingBot = ({ setCurrent, setAvatarId, kbLibrary }) => {
   const [avatars, setAvatars] = useState([]);
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [isLoading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [selectedKnowledgeLibrary, setSelectedKnowledgeLibrary] = useState(null);
   const [isPreviewModalVisible, setIsPreviewModalVisible] = useState(false);
   const videoRef = useRef(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isHovered, setIsHovered] = useState(false);
   const [facebotName, setFacebotName] = useState(""); // State for the input
   const [form] = Form.useForm(); // Using form
+  const [setSelectedKnowledgeLibrary] = useState();
 
   const KB_ID = getCookie("fb_kb_id");
-
+  console.log("kbLibrary", kbLibrary);
   useEffect(() => {
     getAllAvatars();
   }, []);
@@ -49,7 +49,6 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
       console.log("Avatars fetched successfully:", response);
       setAvatars(response.data);
       setSelectedAvatar(response.data[0] || null);
-      setSelectedKnowledgeLibrary(response.data[0]?.avatar_id || null);
       setFacebotName(response.data[0]?.avatar_name || ""); // Set initial value
     } catch (error) {
       console.error("Error fetching avatars:", error);
@@ -79,9 +78,9 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const knowledgeLibraryOptions = avatars.map((avatar) => ({
-    label: avatar.avatar_name,
-    value: avatar.avatar_id,
+  const knowledgeLibraryOptions = kbLibrary?.map((data) => ({
+    label: data?.avatar_name,
+    value: data?.avatar_name,
   }));
 
   const handleKnowledgeLibraryChange = (value) => {
@@ -99,7 +98,6 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
       }
     }
     setSelectedKnowledgeLibrary(value);
-    console.log("Selected Knowledge Library:", selected);
   };
 
   const handleAvatarSelect = (avatar) => {
@@ -107,7 +105,6 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
     setAvatarId(avatar.avatar_id);
     setFacebotName(avatar.avatar_name); // Update the name
     getAvatarById();
-    setSelectedKnowledgeLibrary(avatar.avatar_id);
   };
 
   const getAvatarById = async(avatarId) => {
@@ -434,7 +431,6 @@ const CreatingBot = ({ setCurrent, setAvatarId }) => {
               size="large"
               style={{ width: "20rem", marginBottom: 25 }}
               loading={isLoading}
-              value={selectedKnowledgeLibrary}
             />
             <br />
             <Space>

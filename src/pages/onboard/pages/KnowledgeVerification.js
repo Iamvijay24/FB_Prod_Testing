@@ -26,7 +26,7 @@ import { PlusOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
-const KnowledgeVerification = ({ setCurrent }) => {
+const KnowledgeVerification = ({ setCurrent, setKbLibrary }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState({});
   const [kbData, setKbData] = useState(null);
@@ -206,6 +206,14 @@ const KnowledgeVerification = ({ setCurrent }) => {
         const uniqueCategories = [
           ...new Set(response.data.map((item) => item.category)),
         ];
+
+        // Extract Library 
+        const uniqueLibrary = [
+          ...new Set(response.data?.map((item) => item?.kb_name)),
+        ];
+        console.log("uniqueLibrary",uniqueLibrary);
+        setKbLibrary(uniqueLibrary);
+
         setCategories(uniqueCategories);
 
         // Initialize content state with the API data
