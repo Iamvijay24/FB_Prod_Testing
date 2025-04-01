@@ -1,5 +1,5 @@
 /* eslint-disable no-useless-escape */
-import { LinkOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
+import { LinkOutlined, LockOutlined, MailOutlined, UserOutlined, HomeOutlined } from "@ant-design/icons";
 import { Button, Form, Grid, Input, message, Space, theme, Typography } from "antd";
 import React, { useState } from "react";
 import logo from "../../../Logo.svg";
@@ -136,7 +136,7 @@ export default function RegisterPage() {
       <div style={styles.container}>
         <div style={styles.header}>
           <img src={logo} alt="logo" />
-          <Title style={styles.title}>Sign up</Title>
+          <Title style={styles.title}>Create Account</Title>
           <Text style={styles.text}>
             Join FaceBot today! Fill in your details below to create an account.
           </Text>
@@ -172,7 +172,7 @@ export default function RegisterPage() {
             ]}
           >
             <Input
-              prefix={<MailOutlined />}
+              prefix={<UserOutlined />}
               placeholder="First Name"
               type="text"
               size="large"
@@ -199,7 +199,7 @@ export default function RegisterPage() {
             ]}
           >
             <Input
-              prefix={<MailOutlined />}
+              prefix={<UserOutlined />}
               placeholder="Last Name"
               type="text"
               size="large"
@@ -323,7 +323,7 @@ export default function RegisterPage() {
             ]}
           >
             <Input
-              prefix={<MailOutlined />}
+              prefix={<HomeOutlined />}
               placeholder="Company Name"
               type="text"
               size="large"
@@ -384,31 +384,6 @@ export default function RegisterPage() {
               type="password"
               size="large"
               placeholder="Confirm Password"
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="address"
-            rules={[
-              {
-                type: "string",
-                required: true,
-                message: "Please input your Office Address!",
-                whitespace: true, // Prevents empty strings
-              },
-              {
-                min: 10,
-                message: "Address must be at least 10 characters!",
-              },
-              {
-                max: 200,
-                message: "Address cannot be longer than 200 characters!",
-              },
-            ]}
-          >
-            <TextArea
-              placeholder="Enter Your Office Address"
-              autoSize={{ minRows: 2, maxRows: 6 }}
             />
           </Form.Item>
 
