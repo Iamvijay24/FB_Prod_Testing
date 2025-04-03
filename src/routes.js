@@ -16,6 +16,7 @@ import ContentKB from "./pages/contentKB";
 import { useContext } from "react";
 import { FbContext } from "./shared/rbac/context";
 import { Button, Result } from "antd";
+import Facebot from "./pages/facebot";
 
 function RootRouter() {
 
@@ -23,13 +24,12 @@ function RootRouter() {
 
   const { authenticated: isAuthenticated, onboarded: isOnboarded } = authCxt;
 
-
   const router = createBrowserRouter(
     createRoutesFromElements(
       <>
         <Route
-          path="/"
-          element={isAuthenticated ? (isOnboarded ? <Navigate to="/dashboard" replace /> : <Navigate to="/onboard" replace />) : <LoginPage />}
+          path="/login"
+          element={isAuthenticated ? (isOnboarded ? <Navigate to="/" replace /> : <Navigate to="/onboard" replace />) : <LoginPage />}
         />
         <Route index path="/register" element={<RegisterPage />} />
         <Route path="/verify" element={<OTPValidationPage />} />
@@ -48,17 +48,25 @@ function RootRouter() {
 
         {/* Dashboard */}
         <Route
-          path="/dashboard"
+          path="/"
           element={
             isAuthenticated && isOnboarded ? (
               <MainLayout />
             ) : (
-              <Navigate to="/" replace />
+              <Navigate to="/login" replace />
             )
           }
         >
-          <Route index element={<Dashboard />} />
+          <Route index path="/dashboard" element={<Dashboard />} />
           <Route path="content-kb" element={<ContentKB />} />
+          <Route path="content-facebot" element={<Facebot />} />
+
+          {/* Reports Routes */}
+          <Route path="reports">
+            <Route path=":dashboardID" element={<Dashboard />} />
+          </Route>
+
+          {/* 404 Route within Dashboard Layout */}
           <Route path="*" element={  <Result
             status="404"
             title="404"
