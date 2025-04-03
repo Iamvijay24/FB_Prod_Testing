@@ -41,7 +41,7 @@ function RootRouter() {
             isAuthenticated && !isOnboarded ? (
               <Onboard />
             ) : (
-              <Navigate to="/" replace />
+              <Navigate to="/dashboard" replace />
             )
           }
         />

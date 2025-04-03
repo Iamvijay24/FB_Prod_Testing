@@ -25,12 +25,14 @@ const Dashboard = () => {
       }
     }
 
+    const DASHBOARDID = dashboardID? dashboardID : "6b9c8eb5-d173-4a6f-ac40-40f69190de3b";
+
     const sdk = sdkRef.current;
 
     const initializeDashboard = async() => {
       try {
         const dashboard = sdk.createDashboard({
-          dashboardId: dashboardID || "6b9c8eb5-d173-4a6f-ac40-40f69190de3b",
+          dashboardId: DASHBOARDID,
         });
 
         dashboardInstance.current = dashboard;
