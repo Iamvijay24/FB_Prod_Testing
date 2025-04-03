@@ -287,7 +287,7 @@ const Content = ({ setCurrent, setAvatarId, avatarData, kbLibrary, facebot_id , 
     <div className={styles.container}>
 
       <div>
-        <Title level={4} style={{ fontWeight: "normal", marginTop: 50 }}>
+        <Title level={4} style={{ fontWeight: "normal" }}>
           Selected FaceBot
         </Title>
         <Row gutter={16} align="middle" style={{ marginBottom: 24 }}>
