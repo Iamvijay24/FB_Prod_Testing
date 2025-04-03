@@ -114,7 +114,7 @@ const MainLayout = () => {
       { type: "divider" },
       getItem("Dashboard", "dashboard", <img src={dashboardIcon} alt="dashboard" />, "/"),
       { type: "divider" },
-      getItem("Content KB", "content-kb", <img src={contentIcon} alt="content" />, "/content-kb"),
+      getItem("Knowledge Base", "content-kb", <img src={contentIcon} alt="content" />, "/content-kb"),
       { type: "divider" },
       { type: "divider" },
       getItem("FaceBot", "content-facebot", <img src={manageIcon} alt="content" />, "content-facebot"),
