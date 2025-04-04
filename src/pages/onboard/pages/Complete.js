@@ -54,7 +54,7 @@ const Complete = ({IsAvatarId}) => {
 
   const getCode = async() => {
     try {
-      setLoading(true); // Set loading to true at the start of the request
+      setLoading(true);
       const response = await makeApiRequest("get_widget_code", {
         partner_id: "c5c05e02d6",
         fb_id: "c5c05e02d6:::kb_009:::av_008",
@@ -63,7 +63,7 @@ const Complete = ({IsAvatarId}) => {
     } catch (error) {
       console.error("Error fetching avatars:", error);
     } finally {
-      setLoading(false); // Set loading to false regardless of success or failure
+      setLoading(false);
     }
   };
 

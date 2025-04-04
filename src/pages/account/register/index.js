@@ -7,7 +7,6 @@ import logo from "../../../Logo.svg";
 import { CognitoUserAttribute } from "amazon-cognito-identity-js";
 import { useNavigate } from "react-router-dom";
 import AWSCognitoUserPool from "../../../shared/api/AWSCognitoUserPool";
-import TextArea from "antd/es/input/TextArea";
 
 const { useToken } = theme;
 const { useBreakpoint } = Grid;
@@ -53,8 +52,8 @@ export default function RegisterPage() {
         new CognitoUserAttribute({ Name: 'given_name', Value: values.given_name }),
         new CognitoUserAttribute({ Name: 'family_name', Value: values.family_name }),
         new CognitoUserAttribute({ Name: 'name', Value: values.company_name }),
-        new CognitoUserAttribute({ Name: 'gender', Value: "male" }),
-        new CognitoUserAttribute({ Name: 'address', Value: values.address }),
+        // new CognitoUserAttribute({ Name: 'gender', Value: "male" }),
+        // new CognitoUserAttribute({ Name: 'address', Value: values.address }),
         new CognitoUserAttribute({ Name: 'website', Value: values.website }),
       ];
 
