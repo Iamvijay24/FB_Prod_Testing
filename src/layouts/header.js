@@ -93,7 +93,7 @@ const HeaderLayout = () => {
       {/* User Avatar Section */}
       <Dropdown
         menu={{ items: dropdownItems }}
-        placement="bottomCenter"
+        placement="bottom"
         trigger={["click"]}
       >
         <Avatar

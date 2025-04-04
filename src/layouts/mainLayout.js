@@ -107,7 +107,7 @@ const MainLayout = () => {
     const menuItems = [
       { type: "divider" },
       { type: "divider" },
-      getItem("Dashboard", "dashboard", <img src={dashboardIcon} alt="dashboard" />, "dashboard"),
+      getItem("Dashboard", "dashboard", <img src={dashboardIcon} alt="dashboard" />, "/dashboard"),
       { type: "divider" },
       getItem("Knowledge Base", "content-kb", <img src={contentIcon} alt="content" />, "content-kb"),
       { type: "divider" },

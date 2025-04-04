@@ -22,7 +22,7 @@ const ProcessingModal = ({ isProcessing, setIsProcessing, progress }) => {
       open={isProcessing}
       onOk={() => setIsProcessing(false)}
       onCancel={() => setIsProcessing(false)}
-      width={600}
+      size={600}
       closable={false}
       maskClosable={false}
       centered

@@ -1,36 +1,32 @@
 import {
-  Col,
-  Row,
-  Typography,
   Avatar,
-  Carousel,
-  Select,
-  Space,
   Button,
-  Modal,
-  Input,
+  Col,
   Form,
   message,
+  Modal,
+  Row,
+  Space,
   Spin,
+  Typography
 } from "antd";
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import styles from "./style.module.scss";
-import Skeleton from "react-loading-skeleton";
-import Hls from "hls.js";
 import { getCookie, setCookie } from "cookies-next";
+import Hls from "hls.js";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FaCloudDownloadAlt, FaCopy, FaRegPlayCircle } from "react-icons/fa";
+import Skeleton from "react-loading-skeleton";
 import { makeApiRequest } from "../../shared/api";
 import { extractAvatarId } from "../../utils";
 import ProcessingModal from "./ProcessingModal";
+import styles from "./style.module.scss";
 
 const { Title, Text } = Typography;
 
 const Content = ({ setCurrent, setAvatarId, avatarData, kbLibrary, facebot_id , avatarsList, setAvatarsList,selectedAvatar, setSelectedAvatar}) => {
   const [isLoading, setLoading] = useState(true);
-  const [currentSlide, setCurrentSlide] = useState(0);
   const [isPreviewModalVisible, setIsPreviewModalVisible] = useState(false);
   const videoRef = useRef(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [, setIsMobile] = useState(window.innerWidth < 768);
   const [isHovered, setIsHovered] = useState(false);
   const [facebotName, setFacebotName] = useState("");
   const [form] = Form.useForm();
@@ -42,11 +38,6 @@ const Content = ({ setCurrent, setAvatarId, avatarData, kbLibrary, facebot_id , 
   const [isProcessing, setIsProcessing] = useState(false);
 
   const KB_ID = getCookie("fb_kb_id");
-
-  const updateSelection = useCallback((avatar) => {
-    setSelectedAvatar(avatar);
-    setFacebotName(avatar?.avatar_name || "");
-  }, [setSelectedAvatar, setFacebotName]);
 
   useEffect(() => {
     if (avatarData.progress) {
@@ -94,15 +85,7 @@ const Content = ({ setCurrent, setAvatarId, avatarData, kbLibrary, facebot_id , 
     }
   };
 
-  const chunkArray = (arr, size) => {
-    return arr.reduce((acc, _, i) => {
-      if (i % size === 0) acc.push(arr.slice(i, i + size));
-      return acc;
-    }, []);
-  };
 
-  const chunkSize = isMobile ? 3 : 5;
-  const chunkedAvatars = chunkArray(avatarsList, chunkSize);
 
   useEffect(() => {
     const handleResize = () => {
@@ -112,28 +95,6 @@ const Content = ({ setCurrent, setAvatarId, avatarData, kbLibrary, facebot_id , 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  const knowledgeLibraryOptions = kbLibrary?.map((data) => ({
-    label: data?.avatar_name,
-    value: data?.avatar_name,
-  }));
-
-  const handleKnowledgeLibraryChange = (value) => {
-    if (avatarsList.length > 0) {
-      const selected = avatarsList.find((avatar) => avatar.avatar_id === value);
-      if (selected) {
-        updateSelection(selected);
-      }
-    }
-  };
-
-  const handleAvatarSelect = (avatar) => {
-    updateSelection(avatar);
-  };
-
-  const handleCarouselChange = (current) => {
-    setCurrentSlide(current);
-  };
 
   const handleFinishSetup = async() => {
     try {
@@ -286,7 +247,7 @@ const Content = ({ setCurrent, setAvatarId, avatarData, kbLibrary, facebot_id , 
 
       <div>
         <Title level={4} style={{ fontWeight: "normal" }}>
-          Selected FaceBot
+          Selected FaceBot : {facebotName}
         </Title>
         <Row gutter={16} align="middle" style={{ marginBottom: 24 }}>
           <Col xs={24} sm={12} md={12} lg={12} xl={10}>
@@ -338,131 +299,37 @@ const Content = ({ setCurrent, setAvatarId, avatarData, kbLibrary, facebot_id , 
             )}
             {!isLoading && !selectedAvatar && <Text>No Avatar Found</Text>}
           </Col>
-          <Col xs={24} sm={12} md={12} lg={12} xl={6}>
-            {isLoading ? (
-              <>
-                <Skeleton height={24} width={150} />
-                <br />
-              </>
-            ) : (
-              <Form form={form} layout="vertical">
-                <Form.Item
-                  label="FaceBot Name"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter a name for your FaceBot!",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Enter FaceBot Name"
-                    value={facebotName}
-                    allowClear
-                    onChange={(e) => setFacebotName(e.target.value)}
-                  />
-                </Form.Item>
-              </Form>
-            )}
-          </Col>
+         
         </Row>
       </div>
 
-      <div>
-        <Carousel
-          dots={false}
-          arrows
-          draggable
-          style={{
-            marginTop: 20,
-            width: isMobile ? "18rem" : "28rem",
-            marginLeft: isMobile ? 0 : "0",
-            marginRight: isMobile ? 0 : "auto",
-          }}
-          afterChange={handleCarouselChange}
-          current={currentSlide}
-        >
-          {chunkedAvatars.map((group, index) => (
-            <div key={index}>
-              <Row justify={isMobile ? "start" : "center"} gutter={16}>
-                {group.map((avatar, idx) => (
-                  <Col key={idx}>
-                    {isLoading ? (
-                      <Skeleton shape="square" height={64} width={64} />
-                    ) : (
-                      <Avatar
-                        size={64}
-                        src={avatar.avatar_image}
-                        shape="square"
-                        onClick={() => handleAvatarSelect(avatar)}
-                        style={{
-                          cursor: "pointer",
-                          border:
-                            selectedAvatar?.avatar_image === avatar.avatar_image
-                              ? "2px solid #2fcc71"
-                              : "none",
-                        }}
-                      />
-                    )}
-                  </Col>
-                ))}
-              </Row>
-            </div>
-          ))}
-        </Carousel>
-      </div>
 
-      <div style={{ padding: 20 }}>
-        <Title level={5} style={{ fontWeight: "normal" }}>
-          Select Knowledge Library
-        </Title>
-        {isLoading ? (
-          <>
-            <Skeleton height={40} width={320} />
-            <br />
-            <Skeleton
-              height={40}
-              width={160}
-              count={1}
-              inline={true}
-              style={{ marginRight: 10 }}
-            />
-          </>
-        ) : (
-          <>
-            <Select
-              showSearch
-              placeholder="Select a Knowledge Library"
-              optionFilterProp="label"
-              onChange={handleKnowledgeLibraryChange}
-              options={knowledgeLibraryOptions}
-              size="large"
-              style={{ width: "20rem", marginBottom: 25 }}
-              loading={isLoading}
-            />
-            <br />
-            <Space>
-              <Button
-                size="large"
-                style={{ width: "10rem" }}
-                onClick={handleFinishSetup}
-                disabled={!facebotName}
-              >
-                Update
-              </Button>
+      <div style={{ position: "relative", display: "inline-block", maxWidth: "600px", margin: "auto", paddingLeft: 50 }}>
+        
+        <Space>
+          <Button
+            size="large"
+            color="cyan"
+            type="primary"
+            danger
+            style={{ width: "10rem" }}
+            onClick={handleFinishSetup}
+            // disabled={!facebotName}
+            disabled
+          >
+                Delete
+          </Button>
 
-              <Button
-                type="primary"
-                size="large"
-                style={{ width: "10rem" }}
-                onClick={handleGetCode}
-                disabled={avatarData?.progress !== 100 || getCodeLoading }
-              >
+          <Button
+            type="primary"
+            size="large"
+            style={{ width: "10rem" }}
+            onClick={handleGetCode}
+            disabled={avatarData?.progress !== 100 || getCodeLoading }
+          >
                 Get Code
-              </Button>
-            </Space>
-          </>
-        )}
+          </Button>
+        </Space>
       </div>
 
       <Modal
