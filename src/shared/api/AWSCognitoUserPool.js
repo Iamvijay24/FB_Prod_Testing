@@ -1,8 +1,8 @@
 import { CognitoUserPool } from "amazon-cognito-identity-js";
 const awsconfig = {
   region: "us-east-1",
-  UserPoolId: "us-east-1_DG2BTS7y2",
-  ClientId: "61gajqhag111k0j7t1lf5mkq91",
+  UserPoolId: "us-east-1_zvlyujBKb",
+  ClientId: "7emtqjsm5t3u6il47skbju7mip",
   cookieStorage: {
     domain: ".yourdomain.com",
     path: "/",

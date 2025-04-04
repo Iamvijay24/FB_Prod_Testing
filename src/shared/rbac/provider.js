@@ -33,6 +33,7 @@ const Auth = ({ children }) => {
     deleteCookie('accessToken');
     deleteCookie('refreshToken');
     setState({ authenticated: false, accessToken: '', storeId: '' });
+    window.location.reload();
   };
 
   const handleAuthentication = (data) => {
