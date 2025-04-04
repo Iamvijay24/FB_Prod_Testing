@@ -21,7 +21,6 @@ export default function LoginPage() {
   const authCxt = useContext(FbContext);
 
   useEffect(() => {
-    console.log("authCxt.authenticated", authCxt.authenticated);
     // Use authCxt.authenticated directly in the condition
     if (authCxt.authenticated) {
       navigate('/dashboard');
@@ -44,7 +43,6 @@ export default function LoginPage() {
 
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: (result) => {
-        console.log("Authentication successful:", result);
         setLoading(false);
         authCxt.handleAuthentication(result);
         navigate('/dashboard');

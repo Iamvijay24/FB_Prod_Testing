@@ -60,8 +60,6 @@ const StartHere = ({ setCurrent, setKbName, setKbDescription, kbName, kbDescript
       return;
     }
 
-
-
     if (uploading) {
       return;
     }
@@ -101,7 +99,6 @@ const StartHere = ({ setCurrent, setKbName, setKbDescription, kbName, kbDescript
 
     } catch (error) {
       setUploading(false);
-      console.error('Error uploading file:', error);
       message.error('File upload failed: ' + error.message);
     }
   };

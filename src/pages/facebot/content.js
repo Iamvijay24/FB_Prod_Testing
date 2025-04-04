@@ -44,7 +44,6 @@ const Content = ({ setCurrent, setAvatarId, avatarData, kbLibrary, facebot_id , 
   const KB_ID = getCookie("fb_kb_id");
 
   const updateSelection = useCallback((avatar) => {
-    console.log("Avatar selected:", avatar);
     setSelectedAvatar(avatar);
     setFacebotName(avatar?.avatar_name || "");
   }, [setSelectedAvatar, setFacebotName]);
@@ -64,7 +63,6 @@ const Content = ({ setCurrent, setAvatarId, avatarData, kbLibrary, facebot_id , 
   }, [facebot_id]);
 
   const getAvatarById = async() => {
-    console.log("facebot_id:", facebot_id);
     const avatarId = await extractAvatarId(facebot_id);
     if (!avatarId) {
       message.error("Invalid facebot_id format");

@@ -35,7 +35,6 @@ const CreatingBot = ({ setCurrent, setAvatarId, kbLibrary }) => {
   const [setSelectedKnowledgeLibrary] = useState();
 
   const KB_ID = getCookie("fb_kb_id");
-  console.log("kbLibrary", kbLibrary);
   useEffect(() => {
     getAllAvatars();
   }, []);
@@ -46,12 +45,10 @@ const CreatingBot = ({ setCurrent, setAvatarId, kbLibrary }) => {
       const response = await makeApiRequest("get_avatars", {
         partner_id: "c5c05e02d6",
       });
-      console.log("Avatars fetched successfully:", response);
       setAvatars(response.data);
       setSelectedAvatar(response.data[0] || null);
       setFacebotName(response.data[0]?.avatar_name || ""); // Set initial value
     } catch (error) {
-      console.error("Error fetching avatars:", error);
       setAvatars([]);
       setSelectedAvatar(null);
     } finally {
@@ -157,7 +154,6 @@ const CreatingBot = ({ setCurrent, setAvatarId, kbLibrary }) => {
 
       setCookie("fb_id", response?.data?.fb_id);
 
-      console.log("FaceBot created successfully:", response);
     } catch (error) {
       console.error("Error creating FaceBot:", error);
     } finally {
@@ -213,18 +209,13 @@ const CreatingBot = ({ setCurrent, setAvatarId, kbLibrary }) => {
           if (data.fatal) {
             switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              console.log("fatal network error encountered, try to recover");
               hls.startLoad();
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
-              console.error(
-                "fatal media error encountered, trying to recover"
-              );
               hls.recoverMediaError();
               break;
             default:
               hls.destroy();
-              console.error("Fatal error encountered, cannot recover.");
               break;
             }
           }

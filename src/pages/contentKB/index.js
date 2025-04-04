@@ -5,10 +5,6 @@ import EditContent from './Edit Content';
 
 const ContentKB = () => {
 
-  const onChange = (key) => {
-    console.log(key);
-  };
-
   const items = [
     {
       key: '1',
@@ -24,7 +20,7 @@ const ContentKB = () => {
 
   return (
     <div>
-      <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+      <Tabs defaultActiveKey="1" items={items} />
     </div>
   );
 };

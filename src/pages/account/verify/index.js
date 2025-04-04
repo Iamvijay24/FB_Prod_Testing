@@ -62,7 +62,6 @@ const OTPVerificationPage = () => {
   }, [otpVerified, navigate]);
 
   const onVerifyOTP = async(values) => {
-    console.log('Verifying OTP:', values.otp, 'for email:', email);
     setLoading(true);
     setError('');
 
@@ -80,16 +79,14 @@ const OTPVerificationPage = () => {
 
         if (err) {
           console.error("OTP Verification Error:", err);
-          setError(err.message || "Failed to verify OTP. Please try again.");
+          setError("Failed to verify OTP. Please try again.");
           return;
         }
 
-        console.log("OTP Verification Result:", result);
         setOtpVerified(true);
       });
     } catch (err) {
-      console.error("Error during OTP verification:", err);
-      setError(err.message || "An unexpected error occurred. Please try again.");
+      setError("An unexpected error occurred. Please try again.");
       setLoading(false);
     }
   };
@@ -97,8 +94,6 @@ const OTPVerificationPage = () => {
   const handleResendOTP = async() => {
     setResendLoading(true);
     setError('');
-
-    console.log('Resending OTP to:', email);
 
     try {
       var userData = {

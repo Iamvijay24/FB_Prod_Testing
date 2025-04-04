@@ -68,11 +68,7 @@ const MainLayout = () => {
   useEffect(() => {
     if (menuItems.length === 0) return;
 
-    console.log("Checking active key for path:", location.pathname);
-
     const activeKey = findActiveKey(menuItems, location.pathname) || "dashboard";
-
-    console.log("Setting activeKey:", activeKey);
 
     setSelectedKeys([activeKey]);
   }, [location.pathname, menuItems, findActiveKey]);

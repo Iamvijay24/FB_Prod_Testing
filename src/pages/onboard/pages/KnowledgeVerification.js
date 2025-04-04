@@ -62,9 +62,6 @@ const KnowledgeVerification = ({ setCurrent, setKbLibrary }) => {
     setSelectedCategory(value);
   };
 
-  const onSearch = (value) => {
-    console.log(value);
-  };
 
   const handleCollapseChange = (keys) => {
     setActiveKeys(keys); // Update activeKeys state
@@ -211,7 +208,6 @@ const KnowledgeVerification = ({ setCurrent, setKbLibrary }) => {
         const uniqueLibrary = [
           ...new Set(response.data?.map((item) => item?.kb_name)),
         ];
-        console.log("uniqueLibrary",uniqueLibrary);
         setKbLibrary(uniqueLibrary);
 
         setCategories(uniqueCategories);
@@ -405,7 +401,6 @@ const KnowledgeVerification = ({ setCurrent, setKbLibrary }) => {
     }
   };
 
-
   return (
     <div className={styles.container}>
       <Row justify="center">
@@ -489,7 +484,6 @@ const KnowledgeVerification = ({ setCurrent, setKbLibrary }) => {
                 placeholder="Select a category"
                 optionFilterProp="label"
                 onChange={onChange}
-                onSearch={onSearch}
                 options={options}
                 allowClear
                 size="large"
@@ -563,7 +557,7 @@ const KnowledgeVerification = ({ setCurrent, setKbLibrary }) => {
           <div>
             <Button
               type="primary"
-              disabled={isLoading}
+              disabled={isLoading || !isApproving}
               onClick={() => {
                 setCurrent(3);
               }}
@@ -626,7 +620,6 @@ const KnowledgeVerification = ({ setCurrent, setKbLibrary }) => {
               placeholder="Select a category"
               optionFilterProp="label"
               onChange={handleCategoryChange}
-              onSearch={onSearch}
               options={options}
               allowClear
               size="large"

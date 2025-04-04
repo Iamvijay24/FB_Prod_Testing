@@ -35,7 +35,6 @@ export default function RegisterPage() {
   const [isLoading, setLoading] = useState(false);
 
   const handleFinish = async(values) => { //Make it async to use await
-    console.log("Received values of form: ", values);
     setLoading(true); // Set loading to true before the signup process starts
 
     try {
@@ -71,7 +70,6 @@ export default function RegisterPage() {
             return;
           }
 
-          console.log("Signup result:", result);
           message.success("Signup successful!  Please verify your email.");
           navigate('/verify', {
             state: { email: values.email }
