@@ -122,7 +122,6 @@ const KnowledgeVerification = ({ setCurrent, setKbLibrary }) => {
         );
       }
     } catch (error) {
-      console.error("Error approving category:", error);
       message.error("An error occurred while approving the category.");
     } finally {
       setIsLoading(false);
@@ -401,6 +400,7 @@ const KnowledgeVerification = ({ setCurrent, setKbLibrary }) => {
     }
   };
 
+
   return (
     <div className={styles.container}>
       <Row justify="center">
@@ -557,7 +557,7 @@ const KnowledgeVerification = ({ setCurrent, setKbLibrary }) => {
           <div>
             <Button
               type="primary"
-              disabled={isLoading || !isApproving}
+              disabled={isLoading || Object.keys(isApproving).length === 0}
               onClick={() => {
                 setCurrent(3);
               }}

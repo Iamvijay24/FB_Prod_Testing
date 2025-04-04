@@ -414,7 +414,7 @@ const Content = ({ setCurrent, setAvatarId, avatarData, kbLibrary, facebot_id , 
 
       <div style={{ padding: 20 }}>
         <Title level={5} style={{ fontWeight: "normal" }}>
-          Selected Knowledge Library
+          Select Knowledge Library
         </Title>
         {isLoading ? (
           <>

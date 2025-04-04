@@ -26,7 +26,7 @@ const ProcessingModal = ({ isProcessing, setIsProcessing, progress }) => {
       closable={false}
       maskClosable={false}
       centered
-      bodyStyle={{ padding: "32px" }}
+      styles={{ padding: "32px" }}
       style={{ borderRadius: "12px" }}
       footer={[
         <Button

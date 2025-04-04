@@ -64,7 +64,7 @@ const Complete = ({ IsAvatarId }) => {
         fb_id: FACEBOT_ID,
       });
       authCxt.setOnboarded(true);
-      navigate("/dashboard");
+      navigate("dashboard");
     } catch (error) {
       console.error("Error fetching avatars:", error);
     } finally {

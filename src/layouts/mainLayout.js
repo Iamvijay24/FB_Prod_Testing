@@ -19,7 +19,7 @@ function getItem(label, key, icon, path, children) {
 }
 
 const MainLayout = () => {
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [menuItems, setMenuItems] = useState([]);
@@ -90,7 +90,6 @@ const MainLayout = () => {
       return dashboards;
 
     } catch (error) {
-      console.error("Error fetching dashboards:", error);
       return [];
     }
   };
@@ -108,9 +107,9 @@ const MainLayout = () => {
     const menuItems = [
       { type: "divider" },
       { type: "divider" },
-      getItem("Dashboard", "dashboard", <img src={dashboardIcon} alt="dashboard" />, "/"),
+      getItem("Dashboard", "dashboard", <img src={dashboardIcon} alt="dashboard" />, "dashboard"),
       { type: "divider" },
-      getItem("Knowledge Base", "content-kb", <img src={contentIcon} alt="content" />, "/content-kb"),
+      getItem("Knowledge Base", "content-kb", <img src={contentIcon} alt="content" />, "content-kb"),
       { type: "divider" },
       { type: "divider" },
       getItem("FaceBot", "content-facebot", <img src={manageIcon} alt="content" />, "content-facebot"),

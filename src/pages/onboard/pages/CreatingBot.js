@@ -149,7 +149,7 @@ const CreatingBot = ({ setCurrent, setAvatarId, kbLibrary }) => {
         partner_id: "c5c05e02d6",
         kb_id: KB_ID,
         avatar_id: selectedAvatar?.avatar_id,
-        facebot_name: facebotName, // Use the state name here
+        facebot_name: facebotName,
       });
 
       setCookie("fb_id", response?.data?.fb_id);
@@ -397,7 +397,7 @@ const CreatingBot = ({ setCurrent, setAvatarId, kbLibrary }) => {
 
       <div style={{ maxWidth: 850, margin: "auto", padding: 20 }}>
         <Title level={5} style={{ fontWeight: "normal" }}>
-          Selected Knowledge Library
+          Select Knowledge Library
         </Title>
         {isLoading ? (
           <>

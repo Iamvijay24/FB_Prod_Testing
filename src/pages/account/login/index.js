@@ -49,7 +49,6 @@ export default function LoginPage() {
         message.success('Login successful!');
       },
       onFailure: (err) => {
-        console.error('Authentication failed:', err);
         setLoading(false);
         // Handle specific error messages
         if (err.code === 'UserNotFoundException') {
